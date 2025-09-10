@@ -52,7 +52,8 @@ const OffersTable = ({
   };
 
   // Función para verificar si la fila debe parpadear
-  const shouldBlink = (fechaEntrega, fechaRecepcion) => {
+  const shouldBlink = (fechaEntrega, fechaRecepcion, estado) => {
+    if (estado === 'ENTREGADA') return false;
     if (!fechaEntrega || !fechaRecepcion) return false;
     const diasRestantes = calcularDiasRestantes(fechaEntrega, fechaRecepcion);
     return diasRestantes <= 3 && diasRestantes >= 0;
@@ -124,7 +125,7 @@ const OffersTable = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredOffers.map((offer) => {
               const diasRestantes = calcularDiasRestantes(offer.fechaEntrega, offer.fechaRecepcion);
-              const debeParpadear = shouldBlink(offer.fechaEntrega, offer.fechaRecepcion);
+              const debeParpadear = shouldBlink(offer.fechaEntrega, offer.fechaRecepcion, offer.estado);
               
               return (
                 <tr
@@ -181,7 +182,7 @@ const OffersTable = ({
                       onChange={(e) => onUpdateResult && onUpdateResult(offer.id, e.target.value)}
                       className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white"
                     >
-                      {(results.length ? results : ['OK','KO','NO GO']).map((r) => (
+                      {(results.length ? results : ['VACÍO','OK','KO','NO GO']).map((r) => (
                         <option key={r} value={r}>{r}</option>
                       ))}
                     </select>

@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS proposal_results (
 INSERT INTO offer_statuses (code) VALUES ('EN PROCESO'), ('ENTREGADA')
 ON CONFLICT (code) DO NOTHING;
 
-INSERT INTO proposal_results (code) VALUES ('OK'), ('KO'), ('NO GO')
+INSERT INTO proposal_results (code) VALUES ('VACÍO'), ('OK'), ('KO'), ('NO GO')
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO clients (name) VALUES 

@@ -13,8 +13,9 @@ const toDbOffer = (offer) => ({
   cliente: offer.cliente,
   cliente_final: offer.clienteFinal ?? offer.cliente,
   enviado_por: offer.enviadoPor,
-  fecha_recepcion: offer.fechaRecepcion || null,
-  fecha_entrega: offer.fechaEntrega || null,
+  // No forzar null si no se envían; dejar como undefined para no pisar en updates parciales
+  fecha_recepcion: offer.hasOwnProperty('fechaRecepcion') ? (offer.fechaRecepcion || null) : undefined,
+  fecha_entrega: offer.hasOwnProperty('fechaEntrega') ? (offer.fechaEntrega || null) : undefined,
   estado: offer.estado,
   resultado: offer.resultado,
   ingresos_estimados: offer.ingresosEstimados ?? 0,
@@ -117,5 +118,21 @@ export const comboService = {
     const { data, error } = await supabase.from('proposal_results').select('code').order('code')
     if (error) return []
     return data.map((r) => r.code)
+  },
+  async addClient(name) {
+    const { error } = await supabase.from('clients').insert([{ name }])
+    if (error) throw error
+  },
+  async addSeller(name) {
+    const { error } = await supabase.from('sellers').insert([{ name }])
+    if (error) throw error
+  },
+  async addStatus(code) {
+    const { error } = await supabase.from('offer_statuses').insert([{ code }])
+    if (error) throw error
+  },
+  async addProposalResult(code) {
+    const { error } = await supabase.from('proposal_results').insert([{ code }])
+    if (error) throw error
   }
 }
