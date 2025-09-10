@@ -32,6 +32,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [showExport, setShowExport] = useState(false);
   const [docs, setDocs] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
@@ -587,9 +588,9 @@ function App() {
                 <div className="mt-6 border-t pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-medium text-gray-900">Documentos de la oferta</h4>
-                    <label className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer">
-                      <input type="file" className="hidden" onChange={async(e)=>{const f=e.target.files?.[0]; if(!f) return; const added=await documentsService.upload(editOffer.id,f); setDocs([added,...docs]); e.target.value='';}} />
-                      Subir documento
+                    <label className={`inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip,*/*" className="hidden" onChange={async(e)=>{try{const f=e.target.files?.[0]; if(!f) return; if(!editOffer?.id){alert('No hay oferta seleccionada'); return;} if(f.size>25*1024*1024){alert('El archivo supera 25MB. Súbelo comprimido o más pequeño.'); e.target.value=''; return;} setIsUploading(true); const added=await documentsService.upload(editOffer.id,f); setDocs([added,...docs]); alert('Documento subido correctamente'); }catch(err){console.error('Upload error', err); alert('No se pudo subir el archivo: '+(err?.message||'Error desconocido'));} finally {setIsUploading(false); e.target.value='';}}} />
+                      {isUploading ? 'Subiendo…' : 'Subir documento'}
                     </label>
                   </div>
                   <ul className="space-y-2 max-h-40 overflow-auto">
