@@ -122,6 +122,11 @@ Vamos a crear una aplicación web completa usando:
 
 ## **🆘 Solución de Problemas**
 
+### Error: "Cannot read properties of undefined (reading 'toLocaleString')"
+**✅ SOLUCIONADO** - Este error ya está corregido en el código. Si aparece:
+1. Recarga la página (F5)
+2. Verifica que estés usando la versión más reciente del código
+
 ### Si la aplicación no carga:
 1. Verifica que las variables de entorno estén correctas en Vercel
 2. Revisa la consola del navegador (F12) para errores
@@ -136,6 +141,10 @@ Vamos a crear una aplicación web completa usando:
 1. Verifica que la URL de Supabase sea correcta
 2. Verifica que la clave anónima sea correcta
 3. Asegúrate de que el proyecto de Supabase esté activo
+
+### Si las fechas aparecen como "-":
+- Esto es normal cuando no hay fechas configuradas
+- Las fechas se mostrarán correctamente cuando agregues ofertas con fechas válidas
 
 ---
 

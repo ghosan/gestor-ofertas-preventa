@@ -9,8 +9,15 @@ const OffersTable = ({
 }) => {
   // Función para calcular días restantes
   const calcularDiasRestantes = (fechaEntrega, fechaRecepcion) => {
+    if (!fechaEntrega || !fechaRecepcion) return 0;
+    
     const fechaEntregaObj = new Date(fechaEntrega);
     const fechaRecepcionObj = new Date(fechaRecepcion);
+    
+    if (isNaN(fechaEntregaObj.getTime()) || isNaN(fechaRecepcionObj.getTime())) {
+      return 0;
+    }
+    
     const hoy = new Date();
     const diffTime = fechaEntregaObj - hoy;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -19,7 +26,10 @@ const OffersTable = ({
 
   // Función para formatear fecha
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-ES');
+    if (!fecha) return '-';
+    const fechaObj = new Date(fecha);
+    if (isNaN(fechaObj.getTime())) return '-';
+    return fechaObj.toLocaleDateString('es-ES');
   };
 
   // Función para obtener el color de la fila según el resultado
@@ -38,6 +48,7 @@ const OffersTable = ({
 
   // Función para verificar si la fila debe parpadear
   const shouldBlink = (fechaEntrega, fechaRecepcion) => {
+    if (!fechaEntrega || !fechaRecepcion) return false;
     const diasRestantes = calcularDiasRestantes(fechaEntrega, fechaRecepcion);
     return diasRestantes <= 3 && diasRestantes >= 0;
   };
@@ -160,7 +171,7 @@ const OffersTable = ({
                     {offer.resultado}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    €{offer.ingresosEstimados.toLocaleString()}
+                    €{(offer.ingresosEstimados || 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
