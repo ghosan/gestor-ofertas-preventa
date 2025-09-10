@@ -65,3 +65,22 @@ export const offersService = {
     return true
   }
 }
+
+// Servicios para combos
+export const comboService = {
+  async getClients() {
+    const { data, error } = await supabase.from('clients').select('name').order('name')
+    if (error) return []
+    return data.map((r) => r.name)
+  },
+  async getSellers() {
+    const { data, error } = await supabase.from('sellers').select('name').order('name')
+    if (error) return []
+    return data.map((r) => r.name)
+  },
+  async getStatuses() {
+    const { data, error } = await supabase.from('offer_statuses').select('code').order('code')
+    if (error) return []
+    return data.map((r) => r.code)
+  }
+}

@@ -3,7 +3,7 @@ import KpiCard from './components/KpiCard';
 import SearchBar from './components/SearchBar';
 import Toolbar from './components/Toolbar';
 import OffersTable from './components/OffersTable';
-import { offersService } from './lib/supabase';
+import { offersService, comboService } from './lib/supabase';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -24,10 +24,23 @@ function App() {
     resultado: 'OK',
     ingresosEstimados: 0
   });
+  const [editOffer, setEditOffer] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [sellers, setSellers] = useState([]);
+  const [statuses, setStatuses] = useState([]);
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
     loadOffers();
+  }, []);
+
+  useEffect(() => {
+    // Cargar combos
+    (async () => {
+      setClients(await comboService.getClients());
+      setSellers(await comboService.getSellers());
+      setStatuses(await comboService.getStatuses());
+    })();
   }, []);
 
   const loadOffers = async () => {
@@ -85,6 +98,7 @@ function App() {
 
   // Funciones de toolbar
   const handleCreateOffer = () => {
+    setEditOffer(null);
     setShowModal(true);
   };
 
@@ -167,16 +181,32 @@ function App() {
     }
   };
 
-  // Función para guardar nueva oferta
+  // Generar número de oferta 001.m.yy
+  const generateOfferNumber = (fechaRecepcion, existingCount = offers.length) => {
+    const fecha = fechaRecepcion ? new Date(fechaRecepcion) : new Date();
+    const month = fecha.getMonth() + 1; // 1-12
+    const year = fecha.getFullYear() % 100; // dos dígitos
+    const order = (existingCount + 1).toString().padStart(3, '0');
+    return `${order}.${month}.${year}`;
+  };
+
+  // Guardar (crear o editar) oferta
   const handleSaveOffer = async () => {
-    if (newOffer.numeroOferta && newOffer.descripcion && newOffer.cliente) {
+    if (newOffer.descripcion && newOffer.cliente) {
       try {
-        const offer = {
+        const payload = {
           ...newOffer,
+          numeroOferta: editOffer ? newOffer.numeroOferta : generateOfferNumber(newOffer.fechaRecepcion, offers.length),
           ingresosEstimados: parseInt(newOffer.ingresosEstimados)
         };
-        const createdOffer = await offersService.createOffer(offer);
-        setOffers([createdOffer, ...offers]);
+
+        if (editOffer) {
+          const updated = await offersService.updateOffer(editOffer.id, payload);
+          setOffers(offers.map(o => (o.id === editOffer.id ? updated : o)));
+        } else {
+          const createdOffer = await offersService.createOffer(payload);
+          setOffers([createdOffer, ...offers]);
+        }
         setNewOffer({
           numeroOferta: '',
           descripcion: '',
@@ -192,12 +222,38 @@ function App() {
         setShowModal(false);
       } catch (error) {
         console.error('Error creating offer:', error);
-        alert('Error al crear la oferta');
+        alert('Error al guardar la oferta');
       }
     } else {
-      alert('Por favor completa los campos obligatorios: Nº Oferta, Descripción y Cliente');
+      alert('Por favor completa los campos obligatorios: Descripción y Cliente');
     }
   };
+
+  const handleEditOffer = (offer) => {
+    setEditOffer(offer);
+    setNewOffer({
+      numeroOferta: offer.numero_oferta || offer.numeroOferta || '',
+      descripcion: offer.descripcion || '',
+      cliente: offer.cliente || '',
+      clienteFinal: offer.cliente_final || offer.clienteFinal || offer.cliente || '',
+      enviadoPor: offer.enviado_por || offer.enviadoPor || '',
+      fechaRecepcion: offer.fecha_recepcion || offer.fechaRecepcion || '',
+      fechaEntrega: offer.fecha_entrega || offer.fechaEntrega || '',
+      estado: offer.estado || 'EN PROCESO',
+      resultado: offer.resultado || 'OK',
+      ingresosEstimados: offer.ingresos_estimados || offer.ingresosEstimados || 0
+    });
+    setShowModal(true);
+  };
+
+  const handleUpdateStatus = async (id, estado) => {
+    try {
+      const updated = await offersService.updateOffer(id, { estado });
+      setOffers(offers.map(o => (o.id === id ? updated : o)));
+    } catch (e) {
+      alert('No se pudo actualizar el estado');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -254,6 +310,9 @@ function App() {
           onSelectOffer={handleSelectOffer}
           onSelectAll={handleSelectAll}
           searchTerm={searchTerm}
+          onEditOffer={handleEditOffer}
+          onUpdateStatus={handleUpdateStatus}
+          statuses={statuses}
         />
       </div>
 
@@ -294,13 +353,16 @@ function App() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Cliente *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={newOffer.cliente}
                     onChange={(e) => setNewOffer({...newOffer, cliente: e.target.value, clienteFinal: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Nombre del cliente"
-                  />
+                  >
+                    <option value="">Selecciona un cliente</option>
+                    {clients.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="md:col-span-2">
@@ -320,13 +382,16 @@ function App() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Enviado por
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={newOffer.enviadoPor}
                     onChange={(e) => setNewOffer({...newOffer, enviadoPor: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Nombre del vendedor"
-                  />
+                  >
+                    <option value="">Selecciona un vendedor</option>
+                    {sellers.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div>
@@ -375,8 +440,9 @@ function App() {
                     onChange={(e) => setNewOffer({...newOffer, estado: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="EN PROCESO">EN PROCESO</option>
-                    <option value="ENTREGADA">ENTREGADA</option>
+                    {(statuses.length ? statuses : ['EN PROCESO','ENTREGADA']).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
                 

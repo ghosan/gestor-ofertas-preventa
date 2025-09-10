@@ -5,7 +5,10 @@ const OffersTable = ({
   selectedOffers, 
   onSelectOffer, 
   onSelectAll,
-  searchTerm 
+  searchTerm,
+  onEditOffer,
+  onUpdateStatus,
+  statuses = []
 }) => {
   // Función para calcular días restantes
   const calcularDiasRestantes = (fechaEntrega, fechaRecepcion) => {
@@ -113,6 +116,7 @@ const OffersTable = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Días restantes
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -159,13 +163,15 @@ const OffersTable = ({
                     {formatearFecha(offer.fechaEntrega)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      offer.estado === 'ENTREGADA' 
-                        ? 'bg-gray-100 text-gray-800' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {offer.estado}
-                    </span>
+                    <select
+                      value={offer.estado || 'EN PROCESO'}
+                      onChange={(e) => onUpdateStatus && onUpdateStatus(offer.id, e.target.value)}
+                      className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white"
+                    >
+                      {(statuses.length ? statuses : ['EN PROCESO','ENTREGADA']).map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     {offer.resultado}
@@ -183,6 +189,14 @@ const OffersTable = ({
                     }`}>
                       {diasRestantes < 0 ? 'Vencida' : `${diasRestantes} días`}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      onClick={() => onEditOffer && onEditOffer(offer)}
+                      className="px-3 py-1 text-blue-700 border border-blue-600 rounded-md hover:bg-blue-50"
+                    >
+                      Editar
+                    </button>
                   </td>
                 </tr>
               );

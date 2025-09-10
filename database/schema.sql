@@ -21,6 +21,34 @@ CREATE INDEX idx_offers_cliente ON offers(cliente);
 CREATE INDEX idx_offers_estado ON offers(estado);
 CREATE INDEX idx_offers_resultado ON offers(resultado);
 
+-- Tablas para combos
+CREATE TABLE IF NOT EXISTS clients (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sellers (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS offer_statuses (
+  id BIGSERIAL PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL
+);
+
+-- Datos iniciales para combos
+INSERT INTO offer_statuses (code) VALUES ('EN PROCESO'), ('ENTREGADA')
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO clients (name) VALUES 
+('TechCorp Solutions'), ('StartupXYZ'), ('EmpresaABC'), ('RetailMax'), ('ComercialPlus'), ('FashionStore')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO sellers (name) VALUES 
+('Juan Pérez'), ('María García'), ('Carlos López'), ('Ana Martínez'), ('Roberto Silva'), ('Laura Rodríguez')
+ON CONFLICT (name) DO NOTHING;
+
 -- Insertar datos de ejemplo
 INSERT INTO offers (numero_oferta, descripcion, cliente, cliente_final, enviado_por, fecha_recepcion, fecha_entrega, estado, resultado, ingresos_estimados) VALUES
 ('OF-2024-001', 'Sistema de gestión empresarial completo', 'TechCorp Solutions', 'TechCorp Solutions', 'Juan Pérez', '2024-01-15', '2024-02-15', 'EN PROCESO', 'OK', 45000),
