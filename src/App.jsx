@@ -13,6 +13,7 @@ function App() {
   const [offers, setOffers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
+  const [filterInProgress, setFilterInProgress] = useState(false);
   const pageSize = 10;
   const [selectedOffers, setSelectedOffers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -126,6 +127,11 @@ function App() {
   // Funciones de búsqueda
   const handleSearchChange = (term) => {
     setSearchTerm(term);
+    setPage(1);
+  };
+
+  const handleFilterInProgress = () => {
+    setFilterInProgress(!filterInProgress);
     setPage(1);
   };
 
@@ -418,6 +424,8 @@ function App() {
               selectedOffers={selectedOffers}
               onFileUpload={handleFileUpload}
               onExportExcel={() => setShowExport(true)}
+              onFilterInProgress={handleFilterInProgress}
+              isFiltered={filterInProgress}
                 />
               </div>
             </div>
@@ -432,13 +440,23 @@ function App() {
           <OffersTable 
             offers={
               offers.filter(o => {
-                if (!searchTerm) return true;
-                const s = searchTerm.toLowerCase();
-                return (
-                  (o.numeroOferta||'').toLowerCase().includes(s) ||
-                  (o.cliente||'').toLowerCase().includes(s) ||
-                  (o.descripcion||'').toLowerCase().includes(s)
-                );
+                // Filtro por búsqueda
+                if (searchTerm) {
+                  const s = searchTerm.toLowerCase();
+                  const matchesSearch = (
+                    (o.numeroOferta||'').toLowerCase().includes(s) ||
+                    (o.cliente||'').toLowerCase().includes(s) ||
+                    (o.descripcion||'').toLowerCase().includes(s)
+                  );
+                  if (!matchesSearch) return false;
+                }
+                
+                // Filtro por estado EN PROCESO
+                if (filterInProgress) {
+                  return (o.estado || '').toUpperCase() === 'EN PROCESO';
+                }
+                
+                return true;
               }).slice((page-1)*pageSize, page*pageSize)
             }
             selectedOffers={selectedOffers}
@@ -456,26 +474,46 @@ function App() {
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-gray-600">
             Página {page} de {Math.max(1, Math.ceil(offers.filter(o => {
-              if (!searchTerm) return true;
-              const s = searchTerm.toLowerCase();
-              return (
-                (o.numeroOferta||'').toLowerCase().includes(s) ||
-                (o.cliente||'').toLowerCase().includes(s) ||
-                (o.descripcion||'').toLowerCase().includes(s)
-              );
+              // Filtro por búsqueda
+              if (searchTerm) {
+                const s = searchTerm.toLowerCase();
+                const matchesSearch = (
+                  (o.numeroOferta||'').toLowerCase().includes(s) ||
+                  (o.cliente||'').toLowerCase().includes(s) ||
+                  (o.descripcion||'').toLowerCase().includes(s)
+                );
+                if (!matchesSearch) return false;
+              }
+              
+              // Filtro por estado EN PROCESO
+              if (filterInProgress) {
+                return (o.estado || '').toUpperCase() === 'EN PROCESO';
+              }
+              
+              return true;
             }).length / pageSize))}
           </div>
           <div className="space-x-2">
             <button onClick={()=>setPage(p=>Math.max(1,p-1))} className="px-3 py-1 border rounded-md bg-white">Anterior</button>
             <button onClick={()=>setPage(p=>{
               const total = Math.ceil(offers.filter(o => {
-                if (!searchTerm) return true;
-                const s = searchTerm.toLowerCase();
-                return (
-                  (o.numeroOferta||'').toLowerCase().includes(s) ||
-                  (o.cliente||'').toLowerCase().includes(s) ||
-                  (o.descripcion||'').toLowerCase().includes(s)
-                );
+                // Filtro por búsqueda
+                if (searchTerm) {
+                  const s = searchTerm.toLowerCase();
+                  const matchesSearch = (
+                    (o.numeroOferta||'').toLowerCase().includes(s) ||
+                    (o.cliente||'').toLowerCase().includes(s) ||
+                    (o.descripcion||'').toLowerCase().includes(s)
+                  );
+                  if (!matchesSearch) return false;
+                }
+                
+                // Filtro por estado EN PROCESO
+                if (filterInProgress) {
+                  return (o.estado || '').toUpperCase() === 'EN PROCESO';
+                }
+                
+                return true;
               }).length / pageSize);
               return Math.min(total || 1, p+1);
             })} className="px-3 py-1 border rounded-md bg-white">Siguiente</button>
