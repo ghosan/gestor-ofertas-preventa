@@ -422,7 +422,6 @@ function App() {
               onDeleteSelected={handleDeleteSelected}
               onCreateFolder={handleCreateFolder}
               selectedOffers={selectedOffers}
-              onFileUpload={handleFileUpload}
               onExportExcel={() => setShowExport(true)}
               onFilterInProgress={handleFilterInProgress}
               isFiltered={filterInProgress}
