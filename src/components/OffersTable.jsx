@@ -72,9 +72,9 @@ const OffersTable = ({
 
   return (
     <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
             <tr>
               <th className="px-3 py-2 text-left w-10">
                 <input
@@ -117,6 +117,7 @@ const OffersTable = ({
               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                 Días restantes
               </th>
+              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
@@ -212,6 +213,23 @@ const OffersTable = ({
                         </span>
                       );
                     })()}
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-right">
+                    <div className="inline-flex items-center gap-1">
+                      <button title="Abrir"
+                        className="w-8 h-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        onClick={() => onEditOffer && onEditOffer(offer)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      </button>
+                      {offer.docsCount>0 && (
+                        <a title="Ver documentos" href="#" className="w-8 h-8 inline-flex items-center justify-center rounded-full bg-violet-50 text-violet-700 hover:bg-violet-100"
+                          onClick={(e)=>{e.preventDefault(); onEditOffer && onEditOffer(offer);}}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v10l9-5-9-5z"/></svg>
+                        </a>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

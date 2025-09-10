@@ -4,6 +4,7 @@ import SearchBar from './components/SearchBar';
 import Toolbar from './components/Toolbar';
 import OffersTable from './components/OffersTable';
 import ExportForm from './components/ExportForm';
+import Tabs from './components/Tabs';
 import { offersService, comboService, documentsService, supabase } from './lib/supabase';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
@@ -411,6 +412,9 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Tabs futuras */}
+        <Tabs active={'general'} onChange={()=>{}} />
 
         {/* Tabla de ofertas */}
         <OffersTable 
