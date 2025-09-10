@@ -4,7 +4,7 @@ import SearchBar from './components/SearchBar';
 import Toolbar from './components/Toolbar';
 import OffersTable from './components/OffersTable';
 import ExportForm from './components/ExportForm';
-import { offersService, comboService, documentsService } from './lib/supabase';
+import { offersService, comboService, documentsService, supabase } from './lib/supabase';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -38,6 +38,27 @@ function App() {
   useEffect(() => {
     loadOffers();
   }, []);
+
+  // Suscripción en tiempo real para refrescar cuando haya cambios
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime-ofertas')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'offers' }, () => {
+        loadOffers();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'offer_documents' }, (payload) => {
+        loadOffers();
+        // Si estamos editando una oferta, recargar sus documentos
+        if (editOffer?.id) {
+          documentsService.list(editOffer.id).then(setDocs).catch(()=>{});
+        }
+      })
+      .subscribe();
+
+    return () => {
+      try { supabase.removeChannel(channel); } catch (e) {}
+    };
+  }, [editOffer]);
 
   useEffect(() => {
     // Cargar combos
