@@ -351,16 +351,14 @@ function App() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <KpiCard 
             title="Total de Ofertas" 
             value={totalOfertas} 
-            color="blue" 
           />
           <KpiCard 
             title="Ofertas Ganadas" 
             value={ofertasGanadas} 
-            color="green" 
           />
         </div>
 

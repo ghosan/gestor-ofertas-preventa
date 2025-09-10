@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tipografía estilo Apple */
+:root {
+  --app-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+}
+
+html, body, #root {
+  font-family: var(--app-font);
+}
+
 /* Estilos personalizados para la animación de parpadeo */
 @keyframes blink {
   0%, 50% {
