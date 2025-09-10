@@ -14,6 +14,8 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [filterInProgress, setFilterInProgress] = useState(false);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
   const pageSize = 10;
   const [selectedOffers, setSelectedOffers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -134,6 +136,20 @@ function App() {
     setFilterInProgress(!filterInProgress);
     setPage(1);
   };
+
+  const handleFilterDates = () => {
+    setShowDateFilter(!showDateFilter);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setFilterInProgress(false);
+    setDateFilter({ from: '', to: '' });
+    setShowDateFilter(false);
+    setPage(1);
+  };
+
+  const hasActiveFilters = searchTerm || filterInProgress || dateFilter.from || dateFilter.to;
 
   // Funciones de selección
   const handleSelectOffer = (offerId, isSelected) => {
@@ -413,7 +429,10 @@ function App() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <SearchBar 
               searchTerm={searchTerm} 
-              onSearchChange={handleSearchChange} 
+              onSearchChange={handleSearchChange}
+              onFilterDates={handleFilterDates}
+              onClearFilters={handleClearFilters}
+              hasActiveFilters={hasActiveFilters}
             />
             <div className="w-full lg:w-auto lg:ml-4">
               <div className="flex lg:justify-end">
@@ -452,7 +471,24 @@ function App() {
                 
                 // Filtro por estado EN PROCESO
                 if (filterInProgress) {
-                  return (o.estado || '').toUpperCase() === 'EN PROCESO';
+                  if ((o.estado || '').toUpperCase() !== 'EN PROCESO') return false;
+                }
+                
+                // Filtro por fechas de recepción
+                if (dateFilter.from || dateFilter.to) {
+                  const fechaRecepcion = o.fechaRecepcion;
+                  if (!fechaRecepcion) return false;
+                  
+                  const fecha = new Date(fechaRecepcion);
+                  if (dateFilter.from) {
+                    const fromDate = new Date(dateFilter.from);
+                    if (fecha < fromDate) return false;
+                  }
+                  if (dateFilter.to) {
+                    const toDate = new Date(dateFilter.to);
+                    toDate.setHours(23, 59, 59, 999); // Incluir todo el día
+                    if (fecha > toDate) return false;
+                  }
                 }
                 
                 return true;
@@ -486,7 +522,24 @@ function App() {
               
               // Filtro por estado EN PROCESO
               if (filterInProgress) {
-                return (o.estado || '').toUpperCase() === 'EN PROCESO';
+                if ((o.estado || '').toUpperCase() !== 'EN PROCESO') return false;
+              }
+              
+              // Filtro por fechas de recepción
+              if (dateFilter.from || dateFilter.to) {
+                const fechaRecepcion = o.fechaRecepcion;
+                if (!fechaRecepcion) return false;
+                
+                const fecha = new Date(fechaRecepcion);
+                if (dateFilter.from) {
+                  const fromDate = new Date(dateFilter.from);
+                  if (fecha < fromDate) return false;
+                }
+                if (dateFilter.to) {
+                  const toDate = new Date(dateFilter.to);
+                  toDate.setHours(23, 59, 59, 999);
+                  if (fecha > toDate) return false;
+                }
               }
               
               return true;
@@ -509,7 +562,24 @@ function App() {
                 
                 // Filtro por estado EN PROCESO
                 if (filterInProgress) {
-                  return (o.estado || '').toUpperCase() === 'EN PROCESO';
+                  if ((o.estado || '').toUpperCase() !== 'EN PROCESO') return false;
+                }
+                
+                // Filtro por fechas de recepción
+                if (dateFilter.from || dateFilter.to) {
+                  const fechaRecepcion = o.fechaRecepcion;
+                  if (!fechaRecepcion) return false;
+                  
+                  const fecha = new Date(fechaRecepcion);
+                  if (dateFilter.from) {
+                    const fromDate = new Date(dateFilter.from);
+                    if (fecha < fromDate) return false;
+                  }
+                  if (dateFilter.to) {
+                    const toDate = new Date(dateFilter.to);
+                    toDate.setHours(23, 59, 59, 999);
+                    if (fecha > toDate) return false;
+                  }
                 }
                 
                 return true;
@@ -531,6 +601,60 @@ function App() {
               </button>
             </div>
             <ExportForm offers={offers} onClose={() => setShowExport(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Modal Filtro de Fechas */}
+      {showDateFilter && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-24 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Filtrar por fechas de recepción</h3>
+              <button onClick={() => setShowDateFilter(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Desde:</label>
+                <input
+                  type="date"
+                  value={dateFilter.from}
+                  onChange={(e) => setDateFilter({...dateFilter, from: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hasta:</label>
+                <input
+                  type="date"
+                  value={dateFilter.to}
+                  onChange={(e) => setDateFilter({...dateFilter, to: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setDateFilter({ from: '', to: '' });
+                    setPage(1);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                >
+                  Limpiar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDateFilter(false);
+                    setPage(1);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                >
+                  Aplicar Filtro
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
