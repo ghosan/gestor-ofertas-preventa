@@ -8,7 +8,9 @@ const OffersTable = ({
   searchTerm,
   onEditOffer,
   onUpdateStatus,
-  statuses = []
+  onUpdateResult,
+  statuses = [],
+  results = []
 }) => {
   // Función para calcular días restantes
   const calcularDiasRestantes = (fechaEntrega, fechaRecepcion) => {
@@ -174,7 +176,15 @@ const OffersTable = ({
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {offer.resultado}
+                    <select
+                      value={offer.resultado || 'OK'}
+                      onChange={(e) => onUpdateResult && onUpdateResult(offer.id, e.target.value)}
+                      className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white"
+                    >
+                      {(results.length ? results : ['OK','KO','NO GO']).map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     €{(offer.ingresosEstimados || 0).toLocaleString()}

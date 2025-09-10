@@ -28,6 +28,7 @@ function App() {
   const [clients, setClients] = useState([]);
   const [sellers, setSellers] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [results, setResults] = useState([]);
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
@@ -40,6 +41,7 @@ function App() {
       setClients(await comboService.getClients());
       setSellers(await comboService.getSellers());
       setStatuses(await comboService.getStatuses());
+      setResults(await comboService.getProposalResults());
     })();
   }, []);
 
@@ -255,6 +257,15 @@ function App() {
     }
   }
 
+  const handleUpdateResult = async (id, resultado) => {
+    try {
+      const updated = await offersService.updateOffer(id, { resultado });
+      setOffers(offers.map(o => (o.id === id ? updated : o)));
+    } catch (e) {
+      alert('No se pudo actualizar el resultado');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -313,6 +324,8 @@ function App() {
           onEditOffer={handleEditOffer}
           onUpdateStatus={handleUpdateStatus}
           statuses={statuses}
+          results={results}
+          onUpdateResult={handleUpdateResult}
         />
       </div>
 

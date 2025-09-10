@@ -82,5 +82,10 @@ export const comboService = {
     const { data, error } = await supabase.from('offer_statuses').select('code').order('code')
     if (error) return []
     return data.map((r) => r.code)
+  },
+  async getProposalResults() {
+    const { data, error } = await supabase.from('proposal_results').select('code').order('code')
+    if (error) return []
+    return data.map((r) => r.code)
   }
 }

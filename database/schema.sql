@@ -37,8 +37,17 @@ CREATE TABLE IF NOT EXISTS offer_statuses (
   code TEXT UNIQUE NOT NULL
 );
 
+-- Nuevo: tabla para resultados de propuesta (OK, KO, NO GO)
+CREATE TABLE IF NOT EXISTS proposal_results (
+  id BIGSERIAL PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL
+);
+
 -- Datos iniciales para combos
 INSERT INTO offer_statuses (code) VALUES ('EN PROCESO'), ('ENTREGADA')
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO proposal_results (code) VALUES ('OK'), ('KO'), ('NO GO')
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO clients (name) VALUES 
@@ -64,3 +73,20 @@ ALTER TABLE offers ENABLE ROW LEVEL SECURITY;
 -- Crear política para permitir acceso público (lectura y escritura)
 CREATE POLICY "Permitir acceso público a ofertas" ON offers
   FOR ALL USING (true) WITH CHECK (true);
+
+-- RLS y políticas de solo lectura para tablas de combos
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS public_clients_read ON clients;
+CREATE POLICY public_clients_read ON clients FOR SELECT USING (true);
+
+ALTER TABLE sellers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS public_sellers_read ON sellers;
+CREATE POLICY public_sellers_read ON sellers FOR SELECT USING (true);
+
+ALTER TABLE offer_statuses ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS public_statuses_read ON offer_statuses;
+CREATE POLICY public_statuses_read ON offer_statuses FOR SELECT USING (true);
+
+ALTER TABLE proposal_results ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS public_results_read ON proposal_results;
+CREATE POLICY public_results_read ON proposal_results FOR SELECT USING (true);
