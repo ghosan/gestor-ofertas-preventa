@@ -74,6 +74,35 @@ ALTER TABLE offers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir acceso público a ofertas" ON offers
   FOR ALL USING (true) WITH CHECK (true);
 
+-- Tabla de documentos asociados a ofertas
+CREATE TABLE IF NOT EXISTS offer_documents (
+  id BIGSERIAL PRIMARY KEY,
+  offer_id BIGINT REFERENCES offers(id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL,
+  storage_path TEXT NOT NULL,
+  public_url TEXT NOT NULL,
+  size BIGINT,
+  content_type TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE offer_documents ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS public_docs_all ON offer_documents;
+CREATE POLICY public_docs_all ON offer_documents FOR ALL USING (true) WITH CHECK (true);
+
+-- Nota: crea un bucket de Storage llamado 'offer-docs' en Supabase.
+-- Políticas de Storage para lectura/escritura pública del bucket (demo)
+-- Ve a SQL Editor y ejecuta estas políticas si tu proyecto no las tiene:
+--
+-- create policy "Public read offer docs" on storage.objects
+--   for select using ( bucket_id = 'offer-docs' );
+-- create policy "Public upload offer docs" on storage.objects
+--   for insert with check ( bucket_id = 'offer-docs' );
+-- create policy "Public update offer docs" on storage.objects
+--   for update using ( bucket_id = 'offer-docs' );
+-- create policy "Public delete offer docs" on storage.objects
+--   for delete using ( bucket_id = 'offer-docs' );
+
 -- RLS y políticas de solo lectura para tablas de combos
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS public_clients_read ON clients;

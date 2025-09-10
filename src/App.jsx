@@ -4,7 +4,7 @@ import SearchBar from './components/SearchBar';
 import Toolbar from './components/Toolbar';
 import OffersTable from './components/OffersTable';
 import ExportForm from './components/ExportForm';
-import { offersService, comboService } from './lib/supabase';
+import { offersService, comboService, documentsService } from './lib/supabase';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -31,6 +31,7 @@ function App() {
   const [statuses, setStatuses] = useState([]);
   const [results, setResults] = useState([]);
   const [showExport, setShowExport] = useState(false);
+  const [docs, setDocs] = useState([]);
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
@@ -315,6 +316,8 @@ function App() {
       ingresosEstimados: offer.ingresos_estimados || offer.ingresosEstimados || 0
     });
     setShowModal(true);
+    // cargar documentos
+    (async()=>{ setDocs(await documentsService.list(offer.id)); })();
   };
 
   const handleUpdateStatus = async (id, estado) => {
@@ -579,6 +582,28 @@ function App() {
                 </div>
               </div>
               
+              {/* Documentos (solo en edición) */}
+              {editOffer && (
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-medium text-gray-900">Documentos de la oferta</h4>
+                    <label className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer">
+                      <input type="file" className="hidden" onChange={async(e)=>{const f=e.target.files?.[0]; if(!f) return; const added=await documentsService.upload(editOffer.id,f); setDocs([added,...docs]); e.target.value='';}} />
+                      Subir documento
+                    </label>
+                  </div>
+                  <ul className="space-y-2 max-h-40 overflow-auto">
+                    {docs.map(doc => (
+                      <li key={doc.id} className="flex items-center justify-between text-sm">
+                        <a href={doc.public_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate max-w-[70%]">{doc.file_name}</a>
+                        <button onClick={async()=>{await documentsService.remove(doc.id); setDocs(docs.filter(d=>d.id!==doc.id));}} className="text-red-600 hover:underline">Eliminar</button>
+                      </li>
+                    ))}
+                    {docs.length===0 && (<li className="text-gray-500 text-sm">No hay documentos</li>)}
+                  </ul>
+                </div>
+              )}
+
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowModal(false)}

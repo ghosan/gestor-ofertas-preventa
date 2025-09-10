@@ -136,3 +136,36 @@ export const comboService = {
     if (error) throw error
   }
 }
+
+// Documentos de ofertas (Storage + DB)
+export const documentsService = {
+  async list(offerId) {
+    const { data, error } = await supabase
+      .from('offer_documents')
+      .select('*')
+      .eq('offer_id', offerId)
+      .order('created_at', { ascending: false })
+    if (error) return []
+    return data
+  },
+  async upload(offerId, file) {
+    const filePath = `${offerId}/${Date.now()}-${file.name}`
+    const { error: upErr } = await supabase.storage.from('offer-docs').upload(filePath, file, { upsert: false })
+    if (upErr) throw upErr
+    const { data: urlData } = supabase.storage.from('offer-docs').getPublicUrl(filePath)
+    const publicUrl = urlData.publicUrl
+    const { data, error } = await supabase.from('offer_documents').insert([
+      { offer_id: offerId, file_name: file.name, storage_path: filePath, public_url: publicUrl, size: file.size, content_type: file.type }
+    ]).select('*')
+    if (error) throw error
+    return data[0]
+  },
+  async remove(docId) {
+    const { data: doc } = await supabase.from('offer_documents').select('*').eq('id', docId).single()
+    if (doc?.storage_path) {
+      await supabase.storage.from('offer-docs').remove([doc.storage_path])
+    }
+    await supabase.from('offer_documents').delete().eq('id', docId)
+    return true
+  }
+}
