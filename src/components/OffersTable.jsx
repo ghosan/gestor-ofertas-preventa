@@ -5,7 +5,6 @@ const OffersTable = ({
   selectedOffers, 
   onSelectOffer, 
   onSelectAll,
-  searchTerm,
   onEditOffer,
   onUpdateStatus,
   onUpdateResult,
@@ -57,18 +56,7 @@ const OffersTable = ({
     return estado === 'EN PROCESO';
   };
 
-  // Filtrar ofertas según el término de búsqueda
-  const filteredOffers = offers.filter(offer => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      offer.numeroOferta.toLowerCase().includes(searchLower) ||
-      offer.cliente.toLowerCase().includes(searchLower) ||
-      offer.descripcion.toLowerCase().includes(searchLower)
-    );
-  });
-
-  const allSelected = filteredOffers.length > 0 && filteredOffers.every(offer => selectedOffers.includes(offer.id));
+  const allSelected = offers.length > 0 && offers.every(offer => selectedOffers.includes(offer.id));
 
   return (
     <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
@@ -121,7 +109,7 @@ const OffersTable = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
-            {filteredOffers.map((offer) => {
+            {offers.map((offer) => {
               const diasRestantes = calcularDiasRestantes(offer.fechaEntrega, offer.fechaRecepcion);
               const debeParpadear = shouldBlink(offer.fechaEntrega, offer.fechaRecepcion, offer.estado);
               

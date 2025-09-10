@@ -12,6 +12,8 @@ import Papa from 'papaparse';
 function App() {
   const [offers, setOffers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [selectedOffers, setSelectedOffers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newOffer, setNewOffer] = useState({
@@ -88,7 +90,14 @@ function App() {
   const loadOffers = async () => {
     try {
       const data = await offersService.getAllOffers();
-      setOffers(data);
+      // Orden descendente por fecha de recepción (y luego por id)
+      const sorted = [...data].sort((a,b)=>{
+        const da = a.fechaRecepcion ? new Date(a.fechaRecepcion).getTime() : 0;
+        const db = b.fechaRecepcion ? new Date(b.fechaRecepcion).getTime() : 0;
+        if (db !== da) return db - da;
+        return (b.id||0) - (a.id||0);
+      });
+      setOffers(sorted);
     } catch (error) {
       console.error('Error loading offers:', error);
       // Si hay error, cargar datos de ejemplo
@@ -117,6 +126,7 @@ function App() {
   // Funciones de búsqueda
   const handleSearchChange = (term) => {
     setSearchTerm(term);
+    setPage(1);
   };
 
   // Funciones de selección
@@ -419,17 +429,56 @@ function App() {
 
         {/* Tabla de ofertas */}
         <OffersTable 
-          offers={offers}
+          offers={
+            offers.filter(o => {
+              if (!searchTerm) return true;
+              const s = searchTerm.toLowerCase();
+              return (
+                (o.numeroOferta||'').toLowerCase().includes(s) ||
+                (o.cliente||'').toLowerCase().includes(s) ||
+                (o.descripcion||'').toLowerCase().includes(s)
+              );
+            }).slice((page-1)*pageSize, page*pageSize)
+          }
           selectedOffers={selectedOffers}
           onSelectOffer={handleSelectOffer}
           onSelectAll={handleSelectAll}
-          searchTerm={searchTerm}
           onEditOffer={handleEditOffer}
           onUpdateStatus={handleUpdateStatus}
           statuses={statuses}
           results={results}
           onUpdateResult={handleUpdateResult}
         />
+
+        {/* Paginación */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-600">
+            Página {page} de {Math.max(1, Math.ceil(offers.filter(o => {
+              if (!searchTerm) return true;
+              const s = searchTerm.toLowerCase();
+              return (
+                (o.numeroOferta||'').toLowerCase().includes(s) ||
+                (o.cliente||'').toLowerCase().includes(s) ||
+                (o.descripcion||'').toLowerCase().includes(s)
+              );
+            }).length / pageSize))}
+          </div>
+          <div className="space-x-2">
+            <button onClick={()=>setPage(p=>Math.max(1,p-1))} className="px-3 py-1 border rounded-md bg-white">Anterior</button>
+            <button onClick={()=>setPage(p=>{
+              const total = Math.ceil(offers.filter(o => {
+                if (!searchTerm) return true;
+                const s = searchTerm.toLowerCase();
+                return (
+                  (o.numeroOferta||'').toLowerCase().includes(s) ||
+                  (o.cliente||'').toLowerCase().includes(s) ||
+                  (o.descripcion||'').toLowerCase().includes(s)
+                );
+              }).length / pageSize);
+              return Math.min(total || 1, p+1);
+            })} className="px-3 py-1 border rounded-md bg-white">Siguiente</button>
+          </div>
+        </div>
         </div>
       </div>
       {/* Modal Exportar Excel */}
