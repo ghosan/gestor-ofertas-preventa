@@ -428,27 +428,29 @@ function App() {
         <Tabs active={'general'} onChange={()=>{}} />
 
         {/* Tabla de ofertas */}
-        <OffersTable 
-          offers={
-            offers.filter(o => {
-              if (!searchTerm) return true;
-              const s = searchTerm.toLowerCase();
-              return (
-                (o.numeroOferta||'').toLowerCase().includes(s) ||
-                (o.cliente||'').toLowerCase().includes(s) ||
-                (o.descripcion||'').toLowerCase().includes(s)
-              );
-            }).slice((page-1)*pageSize, page*pageSize)
-          }
-          selectedOffers={selectedOffers}
-          onSelectOffer={handleSelectOffer}
-          onSelectAll={handleSelectAll}
-          onEditOffer={handleEditOffer}
-          onUpdateStatus={handleUpdateStatus}
-          statuses={statuses}
-          results={results}
-          onUpdateResult={handleUpdateResult}
-        />
+        <div className="bg-white rounded-lg shadow overflow-hidden w-full">
+          <OffersTable 
+            offers={
+              offers.filter(o => {
+                if (!searchTerm) return true;
+                const s = searchTerm.toLowerCase();
+                return (
+                  (o.numeroOferta||'').toLowerCase().includes(s) ||
+                  (o.cliente||'').toLowerCase().includes(s) ||
+                  (o.descripcion||'').toLowerCase().includes(s)
+                );
+              }).slice((page-1)*pageSize, page*pageSize)
+            }
+            selectedOffers={selectedOffers}
+            onSelectOffer={handleSelectOffer}
+            onSelectAll={handleSelectAll}
+            onEditOffer={handleEditOffer}
+            onUpdateStatus={handleUpdateStatus}
+            statuses={statuses}
+            results={results}
+            onUpdateResult={handleUpdateResult}
+          />
+        </div>
 
         {/* Paginación */}
         <div className="flex items-center justify-between mt-4">
