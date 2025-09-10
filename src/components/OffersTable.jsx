@@ -189,15 +189,24 @@ const OffersTable = ({
                     €{(offer.ingresosEstimados || 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      diasRestantes < 0 
-                        ? 'bg-red-100 text-red-800'
-                        : diasRestantes <= 3
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {diasRestantes < 0 ? 'Vencida' : `${diasRestantes} días`}
-                    </span>
+                    {(() => {
+                      const estado = (offer.estado || '').toUpperCase();
+                      const resultado = (offer.resultado || '').toUpperCase();
+                      if (estado.startsWith('ENTREGAD') || resultado === 'NO GO') {
+                        return <span>-</span>;
+                      }
+                      return (
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          diasRestantes < 0 
+                            ? 'bg-red-100 text-red-800'
+                            : diasRestantes <= 3
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {diasRestantes < 0 ? 'Vencida' : `${diasRestantes} días`}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <button
