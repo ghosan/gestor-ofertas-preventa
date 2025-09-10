@@ -78,15 +78,23 @@ CREATE POLICY "Permitir acceso público a ofertas" ON offers
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS public_clients_read ON clients;
 CREATE POLICY public_clients_read ON clients FOR SELECT USING (true);
+DROP POLICY IF EXISTS public_clients_insert ON clients;
+CREATE POLICY public_clients_insert ON clients FOR INSERT WITH CHECK (true);
 
 ALTER TABLE sellers ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS public_sellers_read ON sellers;
 CREATE POLICY public_sellers_read ON sellers FOR SELECT USING (true);
+DROP POLICY IF EXISTS public_sellers_insert ON sellers;
+CREATE POLICY public_sellers_insert ON sellers FOR INSERT WITH CHECK (true);
 
 ALTER TABLE offer_statuses ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS public_statuses_read ON offer_statuses;
 CREATE POLICY public_statuses_read ON offer_statuses FOR SELECT USING (true);
+DROP POLICY IF EXISTS public_statuses_insert ON offer_statuses;
+CREATE POLICY public_statuses_insert ON offer_statuses FOR INSERT WITH CHECK (true);
 
 ALTER TABLE proposal_results ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS public_results_read ON proposal_results;
 CREATE POLICY public_results_read ON proposal_results FOR SELECT USING (true);
+DROP POLICY IF EXISTS public_results_insert ON proposal_results;
+CREATE POLICY public_results_insert ON proposal_results FOR INSERT WITH CHECK (true);

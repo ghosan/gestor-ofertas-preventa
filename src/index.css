@@ -5,15 +5,15 @@
 /* Estilos personalizados para la animación de parpadeo */
 @keyframes blink {
   0%, 50% {
-    background-color: rgba(236, 72, 153, 0.9); /* fucsia 90% */
+    background-color: #fef3c7; /* yellow-100 */
   }
   51%, 100% {
-    background-color: rgba(219, 39, 119, 0.9); /* fucsia más oscuro 90% */
+    background-color: #fde68a; /* yellow-200 */
   }
 }
 
 .animate-blink {
-  animation: blink 0.9s infinite;
+  animation: blink 1s infinite;
 }
 
 /* Estilos para scrollbar personalizada */
