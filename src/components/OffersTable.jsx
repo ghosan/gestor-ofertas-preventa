@@ -52,8 +52,7 @@ const OffersTable = ({
 
   // Función para verificar si la fila debe parpadear
   const shouldBlink = (fechaEntrega, fechaRecepcion, estado) => {
-    // Nuevo criterio: mientras esté EN PROCESO, siempre parpadea (independiente de fechas)
-    return estado === 'EN PROCESO';
+    return false; // Desactivamos el parpadeo
   };
 
   const allSelected = offers.length > 0 && offers.every(offer => selectedOffers.includes(offer.id));
@@ -118,7 +117,9 @@ const OffersTable = ({
                   key={offer.id}
                   className={`hover:bg-gray-50 ${
                     debeParpadear ? 'animate-blink' : ''
-                  } ${getRowColor(offer.resultado)}`}
+                  } ${getRowColor(offer.resultado)} ${
+                    (offer.estado || '').toUpperCase() === 'EN PROCESO' ? 'bg-yellow-50' : ''
+                  }`}
                   onDoubleClick={() => onEditOffer && onEditOffer(offer)}
                 >
                   <td className="px-2 py-2 whitespace-nowrap">
