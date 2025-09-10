@@ -129,50 +129,103 @@ function App() {
     
     reader.onload = (e) => {
       const data = e.target.result;
-      
+
+      // Helpers
+      const normalize = (s) =>
+        (s || '')
+          .toString()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, ' ');
+
+      const excelDateToISO = (val) => {
+        if (!val) return '';
+        if (typeof val === 'number') {
+          const d = XLSX.SSF.parse_date_code(val);
+          if (!d) return '';
+          const mm = String(d.m).padStart(2, '0');
+          const dd = String(d.d).padStart(2, '0');
+          return `${d.y}-${mm}-${dd}`;
+        }
+        // cadenas tipo 15/02/2024 o 2024-02-15
+        const partsSlash = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(val);
+        if (partsSlash) {
+          const [d, m, y] = val.split('/');
+          const yy = y.length === 2 ? `20${y}` : y;
+          return `${yy}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        }
+        return val; // ya ISO
+      };
+
+      const mapRow = (row, idx) => {
+        // Normalizamos claves del row
+        const entries = Object.entries(row).map(([k, v]) => [normalize(k), v]);
+        const obj = Object.fromEntries(entries);
+        const get = (...keys) => {
+          for (const k of keys) {
+            const nk = normalize(k);
+            if (obj.hasOwnProperty(nk)) return obj[nk];
+          }
+          return undefined;
+        };
+
+        const numero = get('nº oferta','no oferta','numero oferta','numerooferta');
+        const descripcion = get('descripcion','descripción');
+        const cliente = get('cliente');
+        const clienteFinal = get('cliente final','clientefinal') || cliente;
+        const enviadoPor = get('enviado por','enviadopor');
+        const fechaRecepcion = excelDateToISO(get('fecha recepcion','fecha recepción','fecharecepcion'));
+        const fechaEntrega = excelDateToISO(get('fecha entrega','fechaentrega'));
+        const estado = (get('estado') || 'EN PROCESO').toString().toUpperCase();
+        const resultado = (get('resultado') || 'VACÍO').toString().toUpperCase();
+        const ingresos = parseInt(get('ingresos','ingresosestimados') || '0');
+
+        return {
+          numeroOferta: (numero || '').toString(),
+          descripcion: descripcion || '',
+          cliente: cliente || '',
+          clienteFinal,
+          enviadoPor: enviadoPor || '',
+          fechaRecepcion: fechaRecepcion || '',
+          fechaEntrega: fechaEntrega || '',
+          estado,
+          resultado,
+          ingresosEstimados: isNaN(ingresos) ? 0 : ingresos,
+        };
+      };
+
+      const upsertAll = async (rows) => {
+        const created = [];
+        for (const r of rows) {
+          const payload = {
+            ...r,
+            // Generar número si viene vacío
+            numeroOferta: r.numeroOferta && r.numeroOferta.trim() ? r.numeroOferta : generateOfferNumber(r.fechaRecepcion, offers.length + created.length),
+          };
+          const saved = await offersService.createOffer(payload);
+          created.push(saved);
+        }
+        setOffers([...created, ...offers]);
+      };
+
       if (file.name.endsWith('.csv')) {
-        // Procesar CSV
         Papa.parse(data, {
           header: true,
-          complete: (results) => {
-            const processedData = results.data.map((row, index) => ({
-              id: offers.length + index + 1,
-              numeroOferta: row['Nº Oferta'] || row['numeroOferta'] || '',
-              descripcion: row['Descripción'] || row['descripcion'] || '',
-              cliente: row['Cliente'] || row['cliente'] || '',
-              clienteFinal: row['Cliente Final'] || row['clienteFinal'] || row['Cliente'] || row['cliente'] || '',
-              enviadoPor: row['Enviado por'] || row['enviadoPor'] || '',
-              fechaRecepcion: row['Fecha Recepción'] || row['fechaRecepcion'] || '',
-              fechaEntrega: row['Fecha Entrega'] || row['fechaEntrega'] || '',
-              estado: row['Estado'] || row['estado'] || 'EN PROCESO',
-              resultado: row['Resultado'] || row['resultado'] || 'OK',
-              ingresosEstimados: parseInt(row['Ingresos'] || row['ingresosEstimados'] || '0')
-            }));
-            setOffers([...offers, ...processedData]);
+          skipEmptyLines: true,
+          complete: async (results) => {
+            const processed = results.data.map(mapRow);
+            await upsertAll(processed);
           }
         });
       } else {
-        // Procesar Excel
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        
-        const processedData = jsonData.map((row, index) => ({
-          id: offers.length + index + 1,
-          numeroOferta: row['Nº Oferta'] || row['numeroOferta'] || '',
-          descripcion: row['Descripción'] || row['descripcion'] || '',
-          cliente: row['Cliente'] || row['cliente'] || '',
-          clienteFinal: row['Cliente Final'] || row['clienteFinal'] || row['Cliente'] || row['cliente'] || '',
-          enviadoPor: row['Enviado por'] || row['enviadoPor'] || '',
-          fechaRecepcion: row['Fecha Recepción'] || row['fechaRecepcion'] || '',
-          fechaEntrega: row['Fecha Entrega'] || row['fechaEntrega'] || '',
-          estado: row['Estado'] || row['estado'] || 'EN PROCESO',
-          resultado: row['Resultado'] || row['resultado'] || 'OK',
-          ingresosEstimados: parseInt(row['Ingresos'] || row['ingresosEstimados'] || '0')
-        }));
-        
-        setOffers([...offers, ...processedData]);
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+        const processed = jsonData.map(mapRow);
+        upsertAll(processed);
       }
     };
     
