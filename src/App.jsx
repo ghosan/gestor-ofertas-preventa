@@ -43,7 +43,14 @@ function App() {
   const loadCombos = async () => {
     try {
       setClients(await comboService.getClients());
-      setSellers(await comboService.getSellers());
+      const sellersFromDb = await comboService.getSellers();
+      if (sellersFromDb && sellersFromDb.length) {
+        setSellers(sellersFromDb);
+      } else {
+        // Fallback: deducir desde ofertas existentes
+        const dedup = Array.from(new Set(offers.map(o => o.enviadoPor || o.enviado_por).filter(Boolean)));
+        setSellers(dedup);
+      }
       setStatuses(await comboService.getStatuses());
       setResults(await comboService.getProposalResults());
     } catch (e) {
@@ -428,10 +435,26 @@ function App() {
                   </label>
                   <select
                     value={newOffer.cliente}
-                    onChange={(e) => setNewOffer({...newOffer, cliente: e.target.value, clienteFinal: e.target.value})}
+                    onChange={(e) => setNewOffer({...newOffer, cliente: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Selecciona un cliente</option>
+                    {clients.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cliente final
+                  </label>
+                  <select
+                    value={newOffer.clienteFinal}
+                    onChange={(e) => setNewOffer({...newOffer, clienteFinal: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">(igual que Cliente)</option>
                     {clients.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
