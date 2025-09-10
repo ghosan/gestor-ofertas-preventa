@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados para la animación de parpadeo */
+@keyframes blink {
+  0%, 50% {
+    background-color: #fef3c7; /* yellow-100 */
+  }
+  51%, 100% {
+    background-color: #fde68a; /* yellow-200 */
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+/* Estilos para scrollbar personalizada */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Estilos para el modal */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+}

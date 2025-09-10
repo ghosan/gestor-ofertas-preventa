@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "numeroOferta": "OF-2024-001",
+    "descripcion": "Sistema de gestión empresarial completo",
+    "cliente": "TechCorp Solutions",
+    "clienteFinal": "TechCorp Solutions",
+    "enviadoPor": "Juan Pérez",
+    "fechaRecepcion": "2024-01-15",
+    "fechaEntrega": "2024-02-15",
+    "estado": "EN PROCESO",
+    "resultado": "OK",
+    "ingresosEstimados": 45000
+  },
+  {
+    "id": 2,
+    "numeroOferta": "OF-2024-002",
+    "descripcion": "Desarrollo de aplicación móvil",
+    "cliente": "StartupXYZ",
+    "clienteFinal": "StartupXYZ",
+    "enviadoPor": "María García",
+    "fechaRecepcion": "2024-01-20",
+    "fechaEntrega": "2024-03-01",
+    "estado": "ENTREGADA",
+    "resultado": "OK",
+    "ingresosEstimados": 28000
+  },
+  {
+    "id": 3,
+    "numeroOferta": "OF-2024-003",
+    "descripcion": "Consultoría en transformación digital",
+    "cliente": "EmpresaABC",
+    "clienteFinal": "EmpresaABC",
+    "enviadoPor": "Carlos López",
+    "fechaRecepcion": "2024-01-25",
+    "fechaEntrega": "2024-02-28",
+    "estado": "EN PROCESO",
+    "resultado": "NO GO",
+    "ingresosEstimados": 15000
+  },
+  {
+    "id": 4,
+    "numeroOferta": "OF-2024-004",
+    "descripcion": "Implementación de CRM",
+    "cliente": "RetailMax",
+    "clienteFinal": "RetailMax",
+    "enviadoPor": "Ana Martínez",
+    "fechaRecepcion": "2024-02-01",
+    "fechaEntrega": "2024-02-05",
+    "estado": "EN PROCESO",
+    "resultado": "KO",
+    "ingresosEstimados": 32000
+  },
+  {
+    "id": 5,
+    "numeroOferta": "OF-2024-005",
+    "descripcion": "Sistema de facturación electrónica",
+    "cliente": "ComercialPlus",
+    "clienteFinal": "ComercialPlus",
+    "enviadoPor": "Roberto Silva",
+    "fechaRecepcion": "2024-02-10",
+    "fechaEntrega": "2024-02-12",
+    "estado": "EN PROCESO",
+    "resultado": "OK",
+    "ingresosEstimados": 18000
+  },
+  {
+    "id": 6,
+    "numeroOferta": "OF-2024-006",
+    "descripcion": "Plataforma de e-commerce",
+    "cliente": "FashionStore",
+    "clienteFinal": "FashionStore",
+    "enviadoPor": "Laura Rodríguez",
+    "fechaRecepcion": "2024-02-15",
+    "fechaEntrega": "2024-02-18",
+    "estado": "EN PROCESO",
+    "resultado": "OK",
+    "ingresosEstimados": 55000
+  }
+]
