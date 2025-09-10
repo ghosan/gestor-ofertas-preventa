@@ -5,7 +5,8 @@ const Toolbar = ({
   onDeleteSelected, 
   onCreateFolder, 
   selectedOffers,
-  onFileUpload
+  onFileUpload,
+  onExportExcel
 }) => {
   const fileInputRef = useRef(null);
 
@@ -49,6 +50,17 @@ const Toolbar = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
         Crear Nueva Oferta
+      </button>
+
+      {/* Botón Exportar Excel */}
+      <button
+        onClick={onExportExcel}
+        className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16" />
+        </svg>
+        Exportar Excel
       </button>
 
       {/* Botón Eliminar Seleccionadas */}
