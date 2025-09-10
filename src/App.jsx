@@ -16,6 +16,7 @@ function App() {
   const [filterInProgress, setFilterInProgress] = useState(false);
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
+  const [appliedDateFilter, setAppliedDateFilter] = useState({ from: '', to: '' });
   const pageSize = 10;
   const [selectedOffers, setSelectedOffers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -145,11 +146,12 @@ function App() {
     setSearchTerm('');
     setFilterInProgress(false);
     setDateFilter({ from: '', to: '' });
+    setAppliedDateFilter({ from: '', to: '' });
     setShowDateFilter(false);
     setPage(1);
   };
 
-  const hasActiveFilters = searchTerm || filterInProgress || dateFilter.from || dateFilter.to;
+  const hasActiveFilters = searchTerm || filterInProgress || appliedDateFilter.from || appliedDateFilter.to;
 
   // Funciones de selección
   const handleSelectOffer = (offerId, isSelected) => {
@@ -475,17 +477,17 @@ function App() {
                 }
                 
                 // Filtro por fechas de recepción
-                if (dateFilter.from || dateFilter.to) {
+                if (appliedDateFilter.from || appliedDateFilter.to) {
                   const fechaRecepcion = o.fechaRecepcion;
                   if (!fechaRecepcion) return false;
                   
                   const fecha = new Date(fechaRecepcion);
-                  if (dateFilter.from) {
-                    const fromDate = new Date(dateFilter.from);
+                  if (appliedDateFilter.from) {
+                    const fromDate = new Date(appliedDateFilter.from);
                     if (fecha < fromDate) return false;
                   }
-                  if (dateFilter.to) {
-                    const toDate = new Date(dateFilter.to);
+                  if (appliedDateFilter.to) {
+                    const toDate = new Date(appliedDateFilter.to);
                     toDate.setHours(23, 59, 59, 999); // Incluir todo el día
                     if (fecha > toDate) return false;
                   }
@@ -526,17 +528,17 @@ function App() {
               }
               
               // Filtro por fechas de recepción
-              if (dateFilter.from || dateFilter.to) {
+              if (appliedDateFilter.from || appliedDateFilter.to) {
                 const fechaRecepcion = o.fechaRecepcion;
                 if (!fechaRecepcion) return false;
                 
                 const fecha = new Date(fechaRecepcion);
-                if (dateFilter.from) {
-                  const fromDate = new Date(dateFilter.from);
+                if (appliedDateFilter.from) {
+                  const fromDate = new Date(appliedDateFilter.from);
                   if (fecha < fromDate) return false;
                 }
-                if (dateFilter.to) {
-                  const toDate = new Date(dateFilter.to);
+                if (appliedDateFilter.to) {
+                  const toDate = new Date(appliedDateFilter.to);
                   toDate.setHours(23, 59, 59, 999);
                   if (fecha > toDate) return false;
                 }
@@ -566,17 +568,17 @@ function App() {
                 }
                 
                 // Filtro por fechas de recepción
-                if (dateFilter.from || dateFilter.to) {
+                if (appliedDateFilter.from || appliedDateFilter.to) {
                   const fechaRecepcion = o.fechaRecepcion;
                   if (!fechaRecepcion) return false;
                   
                   const fecha = new Date(fechaRecepcion);
-                  if (dateFilter.from) {
-                    const fromDate = new Date(dateFilter.from);
+                  if (appliedDateFilter.from) {
+                    const fromDate = new Date(appliedDateFilter.from);
                     if (fecha < fromDate) return false;
                   }
-                  if (dateFilter.to) {
-                    const toDate = new Date(dateFilter.to);
+                  if (appliedDateFilter.to) {
+                    const toDate = new Date(appliedDateFilter.to);
                     toDate.setHours(23, 59, 59, 999);
                     if (fecha > toDate) return false;
                   }
@@ -638,6 +640,7 @@ function App() {
                 <button
                   onClick={() => {
                     setDateFilter({ from: '', to: '' });
+                    setAppliedDateFilter({ from: '', to: '' });
                     setPage(1);
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
@@ -646,6 +649,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => {
+                    setAppliedDateFilter({ ...dateFilter });
                     setShowDateFilter(false);
                     setPage(1);
                   }}
