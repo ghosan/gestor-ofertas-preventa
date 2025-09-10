@@ -29,8 +29,6 @@ function App() {
   const [sellers, setSellers] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [results, setResults] = useState([]);
-  const [showCombos, setShowCombos] = useState(false);
-  const [newCombo, setNewCombo] = useState({ client: '', seller: '', status: '', result: '' });
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
@@ -312,7 +310,6 @@ function App() {
               onCreateFolder={handleCreateFolder}
               selectedOffers={selectedOffers}
               onFileUpload={handleFileUpload}
-              onOpenCombos={() => setShowCombos(true)}
             />
           </div>
         </div>
@@ -497,49 +494,6 @@ function App() {
         </div>
       )}
 
-      {/* Modal administrar combos */}
-      {showCombos && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-24 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Administrar Combos</h3>
-              <button onClick={() => setShowCombos(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nuevo Cliente</label>
-                <div className="flex space-x-2">
-                  <input value={newCombo.client} onChange={(e)=>setNewCombo({...newCombo, client:e.target.value})} className="flex-1 px-3 py-2 border border-gray-300 rounded-md" placeholder="Nombre cliente"/>
-                  <button onClick={async()=>{ if(!newCombo.client) return; await comboService.addClient(newCombo.client); setClients(await comboService.getClients()); setNewCombo({...newCombo, client:''}); }} className="px-3 py-2 bg-blue-600 text-white rounded-md">Añadir</button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nuevo Vendedor</label>
-                <div className="flex space-x-2">
-                  <input value={newCombo.seller} onChange={(e)=>setNewCombo({...newCombo, seller:e.target.value})} className="flex-1 px-3 py-2 border border-gray-300 rounded-md" placeholder="Nombre vendedor"/>
-                  <button onClick={async()=>{ if(!newCombo.seller) return; await comboService.addSeller(newCombo.seller); setSellers(await comboService.getSellers()); setNewCombo({...newCombo, seller:''}); }} className="px-3 py-2 bg-blue-600 text-white rounded-md">Añadir</button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nuevo Estado</label>
-                <div className="flex space-x-2">
-                  <input value={newCombo.status} onChange={(e)=>setNewCombo({...newCombo, status:e.target.value})} className="flex-1 px-3 py-2 border border-gray-300 rounded-md" placeholder="Estado (p.ej. EN PROCESO)"/>
-                  <button onClick={async()=>{ if(!newCombo.status) return; await comboService.addStatus(newCombo.status); setStatuses(await comboService.getStatuses()); setNewCombo({...newCombo, status:''}); }} className="px-3 py-2 bg-blue-600 text-white rounded-md">Añadir</button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nuevo Resultado</label>
-                <div className="flex space-x-2">
-                  <input value={newCombo.result} onChange={(e)=>setNewCombo({...newCombo, result:e.target.value})} className="flex-1 px-3 py-2 border border-gray-300 rounded-md" placeholder="Resultado (p.ej. VACÍO)"/>
-                  <button onClick={async()=>{ if(!newCombo.result) return; await comboService.addProposalResult(newCombo.result); setResults(await comboService.getProposalResults()); setNewCombo({...newCombo, result:''}); }} className="px-3 py-2 bg-blue-600 text-white rounded-md">Añadir</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

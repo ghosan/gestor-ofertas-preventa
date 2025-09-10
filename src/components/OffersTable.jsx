@@ -53,10 +53,8 @@ const OffersTable = ({
 
   // Función para verificar si la fila debe parpadear
   const shouldBlink = (fechaEntrega, fechaRecepcion, estado) => {
-    if (estado === 'ENTREGADA') return false;
-    if (!fechaEntrega || !fechaRecepcion) return false;
-    const diasRestantes = calcularDiasRestantes(fechaEntrega, fechaRecepcion);
-    return diasRestantes <= 3 && diasRestantes >= 0;
+    // Nuevo criterio: mientras esté EN PROCESO, siempre parpadea (independiente de fechas)
+    return estado === 'EN PROCESO';
   };
 
   // Filtrar ofertas según el término de búsqueda
@@ -178,7 +176,7 @@ const OffersTable = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <select
-                      value={offer.resultado || 'OK'}
+                      value={offer.resultado || 'VACÍO'}
                       onChange={(e) => onUpdateResult && onUpdateResult(offer.id, e.target.value)}
                       className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white"
                     >
