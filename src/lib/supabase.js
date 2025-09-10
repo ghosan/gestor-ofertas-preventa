@@ -6,6 +6,36 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'tu-clave-publica'
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
+// Helpers de mapeo entre frontend (camelCase) y DB (snake_case)
+const toDbOffer = (offer) => ({
+  numero_oferta: offer.numeroOferta,
+  descripcion: offer.descripcion,
+  cliente: offer.cliente,
+  cliente_final: offer.clienteFinal ?? offer.cliente,
+  enviado_por: offer.enviadoPor,
+  fecha_recepcion: offer.fechaRecepcion || null,
+  fecha_entrega: offer.fechaEntrega || null,
+  estado: offer.estado,
+  resultado: offer.resultado,
+  ingresos_estimados: offer.ingresosEstimados ?? 0,
+})
+
+const fromDbOffer = (row) => ({
+  id: row.id,
+  numeroOferta: row.numero_oferta,
+  descripcion: row.descripcion,
+  cliente: row.cliente,
+  clienteFinal: row.cliente_final,
+  enviadoPor: row.enviado_por,
+  fechaRecepcion: row.fecha_recepcion,
+  fechaEntrega: row.fecha_entrega,
+  estado: row.estado,
+  resultado: row.resultado,
+  ingresosEstimados: row.ingresos_estimados,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+})
+
 // Funciones para manejar las ofertas
 export const offersService = {
   // Obtener todas las ofertas
@@ -19,36 +49,36 @@ export const offersService = {
       console.error('Error fetching offers:', error)
       return []
     }
-    return data || []
+    return (data || []).map(fromDbOffer)
   },
 
   // Crear una nueva oferta
   async createOffer(offer) {
     const { data, error } = await supabase
       .from('offers')
-      .insert([offer])
-      .select()
+      .insert([toDbOffer(offer)])
+      .select('*')
     
     if (error) {
       console.error('Error creating offer:', error)
       throw error
     }
-    return data[0]
+    return fromDbOffer(data[0])
   },
 
   // Actualizar una oferta
   async updateOffer(id, updates) {
     const { data, error } = await supabase
       .from('offers')
-      .update(updates)
+      .update(toDbOffer({ ...updates, numeroOferta: updates.numeroOferta ?? undefined }))
       .eq('id', id)
-      .select()
+      .select('*')
     
     if (error) {
       console.error('Error updating offer:', error)
       throw error
     }
-    return data[0]
+    return fromDbOffer(data[0])
   },
 
   // Eliminar ofertas
