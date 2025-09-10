@@ -141,7 +141,12 @@ const OffersTable = ({
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {offer.numeroOferta}
+                    <div className="flex items-center gap-2">
+                      <span>{offer.numeroOferta}</span>
+                      {offer.docsCount > 0 && (
+                        <span title={`${offer.docsCount} documento(s)`} className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700 border border-violet-200">DOCS</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm max-w-xs">
                     <div className="truncate" title={offer.descripcion}>

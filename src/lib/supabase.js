@@ -50,7 +50,24 @@ export const offersService = {
       console.error('Error fetching offers:', error)
       return []
     }
-    return (data || []).map(fromDbOffer)
+    const offers = (data || []).map(fromDbOffer)
+    // Añadir conteo de documentos por oferta (un segundo fetch ligero)
+    try {
+      const ids = offers.map(o => o.id)
+      if (ids.length) {
+        const { data: docRows } = await supabase
+          .from('offer_documents')
+          .select('offer_id')
+          .in('offer_id', ids)
+        const counts = {}
+        ;(docRows || []).forEach(r => { counts[r.offer_id] = (counts[r.offer_id] || 0) + 1 })
+        return offers.map(o => ({ ...o, docsCount: counts[o.id] || 0 }))
+      }
+    } catch (e) {
+      // si falla, devolvemos sin conteo
+      return offers
+    }
+    return offers
   },
 
   // Crear una nueva oferta
