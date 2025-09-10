@@ -21,7 +21,7 @@ const Toolbar = ({
 
   return (
     <div className="flex flex-col space-y-3 w-full">
-      <div className="flex items-center flex-wrap gap-3">
+      <div className="flex items-center flex-wrap gap-3 justify-end w-full">
         {/* Botón para cargar archivos Excel/CSV */}
         <button
           onClick={() => fileInputRef.current && fileInputRef.current.click()}
