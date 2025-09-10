@@ -382,7 +382,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4">
           <div className="py-6">
             <h1 className="text-3xl font-bold text-gray-900 text-center">
               Gestor de Ofertas de Preventa
@@ -394,8 +394,8 @@ function App() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-full 2xl:max-w-[1400px] mx-auto">
+      <div className="w-full px-2 py-8">
+        <div className="w-full">
         {/* KPIs */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <KpiCard 
