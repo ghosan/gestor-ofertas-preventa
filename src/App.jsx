@@ -21,7 +21,7 @@ function App() {
     fechaRecepcion: '',
     fechaEntrega: '',
     estado: 'EN PROCESO',
-    resultado: 'OK',
+    resultado: 'VACÍO',
     ingresosEstimados: 0
   });
   const [editOffer, setEditOffer] = useState(null);
@@ -356,9 +356,9 @@ function App() {
                   <input
                     type="text"
                     value={newOffer.numeroOferta}
-                    onChange={(e) => setNewOffer({...newOffer, numeroOferta: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="OF-2024-XXX"
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                    placeholder="Se genera automáticamente"
                   />
                 </div>
                 
@@ -401,7 +401,7 @@ function App() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Selecciona un vendedor</option>
-                    {sellers.map((s) => (
+                    {(sellers && sellers.length ? sellers : ['Juan Pérez','María García']).map((s) => (
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
@@ -468,9 +468,9 @@ function App() {
                     onChange={(e) => setNewOffer({...newOffer, resultado: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="OK">OK</option>
-                    <option value="KO">KO</option>
-                    <option value="NO GO">NO GO</option>
+                    {(results && results.length ? results : ['VACÍO','OK','KO','NO GO']).map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
                   </select>
                 </div>
               </div>
