@@ -37,13 +37,19 @@ function App() {
 
   useEffect(() => {
     // Cargar combos
-    (async () => {
+    loadCombos();
+  }, []);
+
+  const loadCombos = async () => {
+    try {
       setClients(await comboService.getClients());
       setSellers(await comboService.getSellers());
       setStatuses(await comboService.getStatuses());
       setResults(await comboService.getProposalResults());
-    })();
-  }, []);
+    } catch (e) {
+      console.error('Error cargando combos', e);
+    }
+  };
 
   const loadOffers = async () => {
     try {
@@ -99,8 +105,9 @@ function App() {
   };
 
   // Funciones de toolbar
-  const handleCreateOffer = () => {
+  const handleCreateOffer = async () => {
     setEditOffer(null);
+    await loadCombos();
     setShowModal(true);
   };
 
