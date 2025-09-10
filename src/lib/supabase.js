@@ -177,6 +177,33 @@ export const documentsService = {
     if (error) throw error
     return data[0]
   },
+  // Sube solo al storage, sin crear registro en DB (pendiente de confirmar)
+  async uploadToStorage(offerId, file) {
+    const filePath = `${offerId}/${Date.now()}-${file.name}`
+    const { error: upErr } = await supabase.storage.from('offer-docs').upload(filePath, file, { upsert: false })
+    if (upErr) throw upErr
+    const { data: urlData } = supabase.storage.from('offer-docs').getPublicUrl(filePath)
+    const publicUrl = urlData.publicUrl
+    return { storage_path: filePath, public_url: publicUrl, file_name: file.name, size: file.size, content_type: file.type }
+  },
+  async commit(offerId, pendingList) {
+    if (!pendingList?.length) return []
+    const rows = pendingList.map(p => ({ offer_id: offerId, file_name: p.file_name, storage_path: p.storage_path, public_url: p.public_url, size: p.size, content_type: p.content_type }))
+    const { data, error } = await supabase.from('offer_documents').insert(rows).select('*')
+    if (error) throw error
+    return data
+  },
+  async discard(pendingList) {
+    try {
+      const paths = (pendingList || []).map(p => p.storage_path)
+      if (paths.length) {
+        await supabase.storage.from('offer-docs').remove(paths)
+      }
+    } catch (e) {
+      // silencioso
+    }
+    return true
+  },
   async remove(docId) {
     const { data: doc } = await supabase.from('offer_documents').select('*').eq('id', docId).single()
     if (doc?.storage_path) {

@@ -33,6 +33,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [showExport, setShowExport] = useState(false);
   const [docs, setDocs] = useState([]);
+  const [pendingDocs, setPendingDocs] = useState([]); // subidos en esta sesión, aún no confirmados
   const [isUploading, setIsUploading] = useState(false);
 
   // Cargar datos iniciales desde Supabase
@@ -340,7 +341,7 @@ function App() {
     });
     setShowModal(true);
     // cargar documentos
-    (async()=>{ setDocs(await documentsService.list(offer.id)); })();
+    (async()=>{ setDocs(await documentsService.list(offer.id)); setPendingDocs([]); })();
   };
 
   const handleUpdateStatus = async (id, estado) => {
@@ -614,31 +615,37 @@ function App() {
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-medium text-gray-900">Documentos de la oferta</h4>
                     <label className={`inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip,*/*" className="hidden" onChange={async(e)=>{try{const f=e.target.files?.[0]; if(!f) return; if(!editOffer?.id){alert('No hay oferta seleccionada'); return;} if(f.size>25*1024*1024){alert('El archivo supera 25MB. Súbelo comprimido o más pequeño.'); e.target.value=''; return;} setIsUploading(true); const added=await documentsService.upload(editOffer.id,f); setDocs([added,...docs]); alert('Documento subido correctamente'); }catch(err){console.error('Upload error', err); alert('No se pudo subir el archivo: '+(err?.message||'Error desconocido'));} finally {setIsUploading(false); e.target.value='';}}} />
-                      {isUploading ? 'Subiendo…' : 'Subir documento'}
+                      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip,*/*" className="hidden" onChange={async(e)=>{try{const f=e.target.files?.[0]; if(!f) return; if(!editOffer?.id){alert('No hay oferta seleccionada'); return;} if(f.size>25*1024*1024){alert('El archivo supera 25MB. Súbelo comprimido o más pequeño.'); e.target.value=''; return;} setIsUploading(true); const temp=await documentsService.uploadToStorage(editOffer.id,f); setPendingDocs([temp, ...pendingDocs]); alert('Archivo preparado. Recuerda Guardar para confirmar.'); }catch(err){console.error('Upload error', err); alert('No se pudo subir el archivo: '+(err?.message||'Error desconocido'));} finally {setIsUploading(false); e.target.value='';}}} />
+                      {isUploading ? 'Subiendo…' : 'Añadir documento'}
                     </label>
                   </div>
                   <ul className="space-y-2 max-h-40 overflow-auto">
+                    {pendingDocs.map((doc, idx) => (
+                      <li key={`p-${idx}`} className="flex items-center justify-between text-sm">
+                        <span className="truncate max-w-[70%] text-gray-600">{doc.file_name} (pendiente)</span>
+                        <button onClick={async()=>{await documentsService.discard([doc]); setPendingDocs(pendingDocs.filter((_,i)=>i!==idx));}} className="text-red-600 hover:underline">Deshacer</button>
+                      </li>
+                    ))}
                     {docs.map(doc => (
                       <li key={doc.id} className="flex items-center justify-between text-sm">
                         <a href={doc.public_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate max-w-[70%]">{doc.file_name}</a>
                         <button onClick={async()=>{await documentsService.remove(doc.id); setDocs(docs.filter(d=>d.id!==doc.id));}} className="text-red-600 hover:underline">Eliminar</button>
                       </li>
                     ))}
-                    {docs.length===0 && (<li className="text-gray-500 text-sm">No hay documentos</li>)}
+                    {docs.length===0 && pendingDocs.length===0 && (<li className="text-gray-500 text-sm">No hay documentos</li>)}
                   </ul>
                 </div>
               )}
 
               <div className="flex justify-end space-x-3 mt-6">
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={async() => { await documentsService.discard(pendingDocs); setPendingDocs([]); setShowModal(false); }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   Cancelar
                 </button>
                 <button
-                  onClick={handleSaveOffer}
+                  onClick={async()=>{await handleSaveOffer(); if(editOffer?.id || true){ try{ if(pendingDocs.length){ const committed=await documentsService.commit(editOffer ? editOffer.id : Math.max(...offers.map(o=>o.id)), pendingDocs); setDocs([...committed, ...docs]); setPendingDocs([]);} } catch(e){ console.error(e);} }}}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   Guardar Oferta
