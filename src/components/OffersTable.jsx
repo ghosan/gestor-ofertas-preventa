@@ -117,7 +117,6 @@ const OffersTable = ({
               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                 Días restantes
               </th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
@@ -131,6 +130,7 @@ const OffersTable = ({
                   className={`hover:bg-gray-50 ${
                     debeParpadear ? 'animate-blink' : ''
                   } ${getRowColor(offer.resultado)}`}
+                  onDoubleClick={() => onEditOffer && onEditOffer(offer)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
@@ -207,14 +207,6 @@ const OffersTable = ({
                         </span>
                       );
                     })()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      onClick={() => onEditOffer && onEditOffer(offer)}
-                      className="px-3 py-1 text-blue-700 border border-blue-600 rounded-md hover:bg-blue-50"
-                    >
-                      Editar
-                    </button>
                   </td>
                 </tr>
               );

@@ -372,14 +372,18 @@ function App() {
               searchTerm={searchTerm} 
               onSearchChange={handleSearchChange} 
             />
-            <Toolbar 
+            <div className="w-full lg:w-auto lg:ml-4">
+              <div className="flex lg:justify-end">
+                <Toolbar 
               onCreateOffer={handleCreateOffer}
               onDeleteSelected={handleDeleteSelected}
               onCreateFolder={handleCreateFolder}
               selectedOffers={selectedOffers}
               onFileUpload={handleFileUpload}
               onExportExcel={() => setShowExport(true)}
-            />
+                />
+              </div>
+            </div>
           </div>
         </div>
 
