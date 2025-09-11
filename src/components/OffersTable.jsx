@@ -117,7 +117,7 @@ const OffersTable = ({
                   className={`hover:bg-gray-50 ${
                     debeParpadear ? 'animate-blink' : ''
                   } ${getRowColor(offer.resultado)} ${
-                    ((offer.estado || '').toUpperCase() === 'EN PROCESO' && (offer.resultado || '').toUpperCase() !== 'NO GO') ? 'bg-yellow-50' : ''
+                    (offer.estado || '').toUpperCase() === 'EN PROCESO' ? 'bg-yellow-50' : ''
                   }`}
                   onDoubleClick={() => onEditOffer && onEditOffer(offer)}
                 >
@@ -192,7 +192,7 @@ const OffersTable = ({
                     {(() => {
                       const estado = (offer.estado || '').toUpperCase();
                       const resultado = (offer.resultado || '').toUpperCase();
-                      if (estado.startsWith('ENTREGAD') || resultado === 'NO GO') {
+                      if (estado.startsWith('ENTREGAD') || estado === 'NO GO') {
                         return <span>-</span>;
                       }
                       return (
