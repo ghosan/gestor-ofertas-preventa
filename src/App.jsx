@@ -330,9 +330,10 @@ function App() {
   // Generar número de oferta 001.m.yy
   const generateOfferNumber = (fechaRecepcion, existingCount = offers.length) => {
     const fecha = fechaRecepcion ? new Date(fechaRecepcion) : new Date();
-    const month = fecha.getMonth() + 1; // 1-12
-    const year = fecha.getFullYear() % 100; // dos dígitos
-    const order = (existingCount + 1).toString().padStart(3, '0');
+    const month = String(fecha.getMonth() + 1).padStart(2, '0'); // 01-12
+    const year = String(fecha.getFullYear() % 100).padStart(2, '0'); // 00-99
+    const order = String(existingCount + 1).padStart(3, '0'); // 000-999
+    // Formato final: XXX.XX.XX
     return `${order}.${month}.${year}`;
   };
 
@@ -808,7 +809,16 @@ function App() {
                   <input
                     type="date"
                     value={newOffer.fechaRecepcion}
-                    onChange={(e) => setNewOffer({...newOffer, fechaRecepcion: e.target.value})}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Al cambiar la fecha de recepción, regenerar el código si estamos creando (no editando)
+                      if (!editOffer) {
+                        const newCode = value ? generateOfferNumber(value, offers.length) : newOffer.numeroOferta;
+                        setNewOffer({ ...newOffer, fechaRecepcion: value, numeroOferta: newCode });
+                      } else {
+                        setNewOffer({ ...newOffer, fechaRecepcion: value });
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
