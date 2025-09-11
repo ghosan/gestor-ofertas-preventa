@@ -11,7 +11,6 @@ CREATE TABLE offers (
   estado TEXT DEFAULT 'EN PROCESO',
   resultado TEXT DEFAULT 'OK',
   ingresos_estimados INTEGER DEFAULT 0,
-  link_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
