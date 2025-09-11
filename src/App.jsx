@@ -174,7 +174,22 @@ function App() {
 
   // Funciones de toolbar
   const handleCreateOffer = async () => {
+    // Limpiar cualquier oferta en edición y reiniciar el formulario
     setEditOffer(null);
+    setNewOffer({
+      numeroOferta: '',
+      descripcion: '',
+      cliente: '',
+      clienteFinal: '',
+      enviadoPor: '',
+      fechaRecepcion: '',
+      fechaEntrega: '',
+      estado: 'EN PROCESO',
+      resultado: 'VACÍO',
+      ingresosEstimados: 0
+    });
+    setDocs([]);
+    setPendingDocs([]);
     await loadCombos();
     setShowModal(true);
   };
