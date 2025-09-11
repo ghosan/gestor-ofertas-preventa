@@ -812,35 +812,110 @@ function App() {
                     placeholder="https://..."
                   />
                 </div>
-              </div>
-              
-              {/* Documentos (solo en edición) */}
-              {editOffer && (
-                <div className="mt-6 border-t pt-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-medium text-gray-900">Documentos de la oferta</h4>
-                    <label className={`inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip,*/*" className="hidden" onChange={async(e)=>{try{const f=e.target.files?.[0]; if(!f) return; if(!editOffer?.id){alert('No hay oferta seleccionada'); return;} if(f.size>25*1024*1024){alert('El archivo supera 25MB. Súbelo comprimido o más pequeño.'); e.target.value=''; return;} setIsUploading(true); const temp=await documentsService.uploadToStorage(editOffer.id,f); setPendingDocs([temp, ...pendingDocs]); alert('Archivo preparado. Recuerda Guardar para confirmar.'); }catch(err){console.error('Upload error', err); alert('No se pudo subir el archivo: '+(err?.message||'Error desconocido'));} finally {setIsUploading(false); e.target.value='';}}} />
-                      {isUploading ? 'Subiendo…' : 'Añadir documento'}
-                    </label>
-                  </div>
-                  <ul className="space-y-2 max-h-40 overflow-auto">
-                    {pendingDocs.map((doc, idx) => (
-                      <li key={`p-${idx}`} className="flex items-center justify-between text-sm">
-                        <span className="truncate max-w-[70%] text-gray-600">{doc.file_name} (pendiente)</span>
-                        <button onClick={async()=>{await documentsService.discard([doc]); setPendingDocs(pendingDocs.filter((_,i)=>i!==idx));}} className="text-red-600 hover:underline">Deshacer</button>
-                      </li>
-                    ))}
-                    {docs.map(doc => (
-                      <li key={doc.id} className="flex items-center justify-between text-sm">
-                        <a href={doc.public_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate max-w-[70%]">{doc.file_name}</a>
-                        <button onClick={async()=>{await documentsService.remove(doc.id); setDocs(docs.filter(d=>d.id!==doc.id));}} className="text-red-600 hover:underline">Eliminar</button>
-                      </li>
-                    ))}
-                    {docs.length===0 && pendingDocs.length===0 && (<li className="text-gray-500 text-sm">No hay documentos</li>)}
-                  </ul>
+
+                {/* Sección: Datos comerciales */}
+                <div className="md:col-span-2 pt-2">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Datos comerciales</h4>
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Enviado por</label>
+                  <select
+                    value={newOffer.enviadoPor}
+                    onChange={(e) => setNewOffer({...newOffer, enviadoPor: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecciona un vendedor</option>
+                    {(sellers && sellers.length ? sellers : ['Juan Pérez','María García']).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ingresos Estimados</label>
+                  <input
+                    type="number"
+                    value={newOffer.ingresosEstimados}
+                    onChange={(e) => setNewOffer({...newOffer, ingresosEstimados: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Recepción</label>
+                  <input
+                    type="date"
+                    value={newOffer.fechaRecepcion}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (!editOffer) {
+                        const newCode = value ? generateOfferNumber(value, offers.length) : newOffer.numeroOferta;
+                        setNewOffer({ ...newOffer, fechaRecepcion: value, numeroOferta: newCode });
+                      } else {
+                        setNewOffer({ ...newOffer, fechaRecepcion: value });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Entrega</label>
+                  <input
+                    type="date"
+                    value={newOffer.fechaEntrega}
+                    onChange={(e) => setNewOffer({...newOffer, fechaEntrega: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                  <select
+                    value={newOffer.estado}
+                    onChange={(e) => setNewOffer({...newOffer, estado: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {(statuses.length ? statuses : ['EN PROCESO','ENTREGADA']).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Resultado</label>
+                  <select
+                    value={newOffer.resultado}
+                    onChange={(e) => setNewOffer({...newOffer, resultado: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {(results && results.length ? results : ['VACÍO','OK','KO','NO GO']).map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {/* Documentos: visible en crear y editar */}
+              <div className="mt-6 border-t pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-900">Documentos</h4>
+                  <label className={`inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 cursor-pointer ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                    <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip,*/*" className="hidden" onChange={async(e)=>{try{const f=e.target.files?.[0]; if(!f) return; if(f.size>25*1024*1024){alert('El archivo supera 25MB. Súbelo comprimido o más pequeño.'); e.target.value=''; return;} if(!editOffer?.id){ setPendingDocs([{ file: f }, ...pendingDocs]); alert('Archivo preparado. Se subirá al guardar la oferta.'); e.target.value=''; return;} setIsUploading(true); const temp=await documentsService.uploadToStorage(editOffer.id,f); setPendingDocs([temp, ...pendingDocs]); alert('Archivo preparado. Recuerda Guardar para confirmar.'); }catch(err){console.error('Upload error', err); alert('No se pudo preparar el archivo: '+(err?.message||'Error desconocido'));} finally {setIsUploading(false); e.target.value='';}}} />
+                    {isUploading ? 'Subiendo…' : 'Añadir documento'}
+                  </label>
+                </div>
+                <ul className="space-y-2 max-h-40 overflow-auto">
+                  {pendingDocs.map((doc, idx) => (
+                    <li key={`p-${idx}`} className="flex items-center justify-between text-sm">
+                      <span className="truncate max-w-[70%] text-gray-600">{doc.file?.name || doc.file_name} (pendiente)</span>
+                      <button onClick={async()=>{ try{ if(doc.id){ await documentsService.discard([doc]); } } finally{ setPendingDocs(pendingDocs.filter((_,i)=>i!==idx)); } }} className="text-red-600 hover:underline">Deshacer</button>
+                    </li>
+                  ))}
+                  {docs.map(doc => (
+                    <li key={doc.id} className="flex items-center justify-between text-sm">
+                      <a href={doc.public_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate max-w-[70%]">{doc.file_name}</a>
+                      <button onClick={async()=>{await documentsService.remove(doc.id); setDocs(docs.filter(d=>d.id!==doc.id));}} className="text-red-600 hover:underline">Eliminar</button>
+                    </li>
+                  ))}
+                  {docs.length===0 && pendingDocs.length===0 && (<li className="text-gray-500 text-sm">No hay documentos</li>)}
+                </ul>
+              </div>
 
               <div className="flex justify-end space-x-3 mt-6">
                 <button
