@@ -419,7 +419,7 @@ function App() {
         <div className="w-full px-4">
           <div className="py-6">
             <h1 className="text-3xl font-bold text-gray-900 text-center">
-              Gestor de Ofertas de Preventa
+              ZelBid
             </h1>
             <p className="mt-2 text-sm text-gray-600 text-center">
               Sistema de gestión y seguimiento de ofertas comerciales
