@@ -1,15 +1,22 @@
 import React from 'react';
 
-const KpiCard = ({ title, value }) => {
+const colorMap = {
+  blue: 'bg-blue-50 text-blue-700',
+  green: 'bg-green-50 text-green-700',
+  yellow: 'bg-yellow-50 text-yellow-700',
+  gray: 'bg-gray-50 text-gray-700',
+};
+
+const KpiCard = ({ title, value, icon = '📊', tone = 'blue' }) => {
+  const toneClasses = colorMap[tone] || colorMap.blue;
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200 w-full max-w-xs mx-auto">
-      <div className="text-center">
-        <h3 className="text-xs font-medium text-gray-500 tracking-wide">
-          {title}
-        </h3>
-        <p className="text-2xl font-semibold text-gray-900 mt-1">
-          {value}
-        </p>
+    <div className={`rounded-xl shadow-sm p-4 border border-gray-200 w-full max-w-xs mx-auto ${toneClasses}`}>
+      <div className="flex items-center justify-center gap-3">
+        <span aria-hidden className="text-xl">{icon}</span>
+        <div className="text-center">
+          <h3 className="text-xs font-medium tracking-wide opacity-80">{title}</h3>
+          <p className="text-2xl font-semibold mt-0.5">{value}</p>
+        </div>
       </div>
     </div>
   );

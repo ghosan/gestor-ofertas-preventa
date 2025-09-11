@@ -418,15 +418,14 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="bg-gradient-to-b from-blue-50 to-white border-b border-gray-200">
         <div className="w-full px-4">
-          <div className="py-6">
-            <h1 className="text-3xl font-bold text-gray-900 text-center">
-              ZelBid
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 text-center">
-              Sistema de gestión y seguimiento de ofertas comerciales
-            </p>
+          <div className="py-6 flex items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-sm">Z</div>
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-gray-900">ZelBid</h1>
+              <p className="mt-0.5 text-sm text-gray-600">De la oferta al cierre, todo en un clic</p>
+            </div>
           </div>
         </div>
       </div>
@@ -438,10 +437,14 @@ function App() {
           <KpiCard 
             title="Total de Ofertas" 
             value={totalOfertas} 
+            icon="📊"
+            tone="blue"
           />
           <KpiCard 
             title="Ofertas Ganadas" 
             value={ofertasGanadas} 
+            icon="🏆"
+            tone="green"
           />
         </div>
 
