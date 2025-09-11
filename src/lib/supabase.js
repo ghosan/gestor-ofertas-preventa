@@ -19,6 +19,7 @@ const toDbOffer = (offer) => ({
   estado: offer.estado,
   resultado: offer.resultado,
   ingresos_estimados: offer.ingresosEstimados ?? 0,
+  link_url: offer.linkUrl,
 })
 
 const fromDbOffer = (row) => ({
@@ -33,6 +34,7 @@ const fromDbOffer = (row) => ({
   estado: row.estado,
   resultado: row.resultado,
   ingresosEstimados: row.ingresos_estimados,
+  linkUrl: row.link_url,
   created_at: row.created_at,
   updated_at: row.updated_at,
 })

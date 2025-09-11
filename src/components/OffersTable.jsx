@@ -104,6 +104,7 @@ const OffersTable = ({
               <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                 Días rest.
               </th>
+              <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Link</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
@@ -128,6 +129,15 @@ const OffersTable = ({
                       onChange={(e) => onSelectOffer(offer.id, e.target.checked)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    {offer.linkUrl ? (
+                      <a href={offer.linkUrl} target="_blank" rel="noreferrer" title={offer.linkUrl} className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+                        <span aria-hidden>📁</span>
+                      </a>
+                    ) : (
+                      <span>-</span>
+                    )}
                   </td>
                   <td className="px-2 py-2 text-center text-sm font-medium">
                     <div className="flex items-center gap-1">
