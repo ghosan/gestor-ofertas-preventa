@@ -117,7 +117,7 @@ const OffersTable = ({
                   className={`hover:bg-gray-50 ${
                     debeParpadear ? 'animate-blink' : ''
                   } ${getRowColor(offer.resultado)} ${
-                    (offer.estado || '').toUpperCase() === 'EN PROCESO' ? 'bg-yellow-50' : ''
+                    ((offer.estado || '').toUpperCase() === 'EN PROCESO' && (offer.resultado || '').toUpperCase() !== 'NO GO') ? 'bg-yellow-50' : ''
                   }`}
                   onDoubleClick={() => onEditOffer && onEditOffer(offer)}
                 >
