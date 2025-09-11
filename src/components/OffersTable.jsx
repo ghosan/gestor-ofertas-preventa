@@ -104,6 +104,7 @@ const OffersTable = ({
               <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                 Días rest.
               </th>
+              <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Link</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-sm">
@@ -128,6 +129,15 @@ const OffersTable = ({
                       onChange={(e) => onSelectOffer(offer.id, e.target.checked)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    {offer.linkUrl ? (
+                      <a href={offer.linkUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100" title="Abrir enlace">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3m0 0v7m0-7h-7M14 10H7a4 4 0 00-4 4v7"/></svg>
+                      </a>
+                    ) : (
+                      <span>-</span>
+                    )}
                   </td>
                   <td className="px-2 py-2 text-center text-sm font-medium">
                     <div className="flex items-center gap-1">

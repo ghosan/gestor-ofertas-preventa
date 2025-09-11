@@ -30,7 +30,8 @@ function App() {
     fechaEntrega: '',
     estado: 'EN PROCESO',
     resultado: 'VACÍO',
-    ingresosEstimados: 0
+    ingresosEstimados: 0,
+    linkUrl: ''
   });
   const [editOffer, setEditOffer] = useState(null);
   const [clients, setClients] = useState([]);
@@ -362,7 +363,8 @@ function App() {
           fechaEntrega: '',
           estado: 'EN PROCESO',
           resultado: 'OK',
-          ingresosEstimados: 0
+          ingresosEstimados: 0,
+          linkUrl: ''
         });
         setShowModal(false);
       } catch (error) {
@@ -386,7 +388,8 @@ function App() {
       fechaEntrega: offer.fecha_entrega || offer.fechaEntrega || '',
       estado: offer.estado || 'EN PROCESO',
       resultado: offer.resultado || 'OK',
-      ingresosEstimados: offer.ingresos_estimados || offer.ingresosEstimados || 0
+      ingresosEstimados: offer.ingresos_estimados || offer.ingresosEstimados || 0,
+      linkUrl: offer.link_url || offer.linkUrl || ''
     });
     setShowModal(true);
     // cargar documentos
@@ -753,6 +756,19 @@ function App() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows="3"
                     placeholder="Descripción de la oferta"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Enlace asociado (opcional)
+                  </label>
+                  <input
+                    type="url"
+                    value={newOffer.linkUrl}
+                    onChange={(e) => setNewOffer({...newOffer, linkUrl: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://..."
                   />
                 </div>
                 
