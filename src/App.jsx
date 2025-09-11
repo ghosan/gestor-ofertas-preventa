@@ -42,6 +42,7 @@ function App() {
   const [docs, setDocs] = useState([]);
   const [pendingDocs, setPendingDocs] = useState([]); // subidos en esta sesión, aún no confirmados
   const [isUploading, setIsUploading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Cargar datos iniciales desde Supabase
   useEffect(() => {
@@ -339,7 +340,11 @@ function App() {
 
   // Guardar (crear o editar) oferta
   const handleSaveOffer = async () => {
-    if (newOffer.descripcion && newOffer.cliente) {
+    const nextErrors = {};
+    if (!newOffer.descripcion || !newOffer.descripcion.trim()) nextErrors.descripcion = 'La descripción es obligatoria.';
+    if (!newOffer.cliente || !newOffer.cliente.trim()) nextErrors.cliente = 'El cliente es obligatorio.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length === 0) {
       try {
         const payload = {
           ...newOffer,
@@ -350,9 +355,46 @@ function App() {
         if (editOffer) {
           const updated = await offersService.updateOffer(editOffer.id, payload);
           setOffers(offers.map(o => (o.id === editOffer.id ? updated : o)));
+          // Confirmar documentos pendientes en edición
+          try {
+            if (pendingDocs.length) {
+              const toCommit = [];
+              for (const item of pendingDocs) {
+                if (item.file) {
+                  const temp = await documentsService.uploadToStorage(editOffer.id, item.file);
+                  toCommit.push(temp);
+                } else {
+                  toCommit.push(item);
+                }
+              }
+              if (toCommit.length) {
+                await documentsService.commit(editOffer.id, toCommit);
+              }
+              setPendingDocs([]);
+              setDocs(await documentsService.list(editOffer.id));
+            }
+          } catch(e) { console.error(e); }
         } else {
           const createdOffer = await offersService.createOffer(payload);
           setOffers([createdOffer, ...offers]);
+          // Subir/confirmar documentos agregados durante la creación
+          try {
+            if (pendingDocs.length) {
+              const toCommit = [];
+              for (const item of pendingDocs) {
+                if (item.file) {
+                  const temp = await documentsService.uploadToStorage(createdOffer.id, item.file);
+                  toCommit.push(temp);
+                } else {
+                  toCommit.push(item);
+                }
+              }
+              if (toCommit.length) {
+                await documentsService.commit(createdOffer.id, toCommit);
+              }
+              setPendingDocs([]);
+            }
+          } catch(e) { console.error(e); }
         }
         setNewOffer({
           numeroOferta: '',
@@ -372,8 +414,6 @@ function App() {
         console.error('Error creating offer:', error);
         alert('Error al guardar la oferta');
       }
-    } else {
-      alert('Por favor completa los campos obligatorios: Descripción y Cliente');
     }
   };
 
@@ -689,7 +729,7 @@ function App() {
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-2xl font-semibold text-gray-900 text-center w-full">
-                  Crear Nueva Oferta
+                  {editOffer ? 'Ver/Editar oferta' : 'Crear Nueva Oferta'}
                 </h3>
                 <button
                   onClick={() => setShowModal(false)}
@@ -710,7 +750,7 @@ function App() {
                     type="text"
                     value={newOffer.numeroOferta}
                     disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
                     placeholder="Se genera automáticamente"
                   />
                 </div>
@@ -722,7 +762,7 @@ function App() {
                   <select
                     value={newOffer.cliente}
                     onChange={(e) => setNewOffer({...newOffer, cliente: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Selecciona un cliente</option>
                     {clients.map((c) => (
@@ -738,7 +778,7 @@ function App() {
                   <select
                     value={newOffer.clienteFinal}
                     onChange={(e) => setNewOffer({...newOffer, clienteFinal: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">(igual que Cliente)</option>
                     {clients.map((c) => (
@@ -754,9 +794,9 @@ function App() {
                   <textarea
                     value={newOffer.descripcion}
                     onChange={(e) => setNewOffer({...newOffer, descripcion: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows="3"
-                    placeholder="Descripción de la oferta"
+                    placeholder="Ejemplo: Proyecto migración routers 3G/4G – Cataluña"
                   />
                 </div>
 
@@ -768,101 +808,9 @@ function App() {
                     type="url"
                     value={newOffer.linkUrl}
                     onChange={(e) => setNewOffer({...newOffer, linkUrl: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://..."
                   />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Enviado por
-                  </label>
-                  <select
-                    value={newOffer.enviadoPor}
-                    onChange={(e) => setNewOffer({...newOffer, enviadoPor: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Selecciona un vendedor</option>
-                    {(sellers && sellers.length ? sellers : ['Juan Pérez','María García']).map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ingresos Estimados
-                  </label>
-                  <input
-                    type="number"
-                    value={newOffer.ingresosEstimados}
-                    onChange={(e) => setNewOffer({...newOffer, ingresosEstimados: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fecha Recepción
-                  </label>
-                  <input
-                    type="date"
-                    value={newOffer.fechaRecepcion}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Al cambiar la fecha de recepción, regenerar el código si estamos creando (no editando)
-                      if (!editOffer) {
-                        const newCode = value ? generateOfferNumber(value, offers.length) : newOffer.numeroOferta;
-                        setNewOffer({ ...newOffer, fechaRecepcion: value, numeroOferta: newCode });
-                      } else {
-                        setNewOffer({ ...newOffer, fechaRecepcion: value });
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fecha Entrega
-                  </label>
-                  <input
-                    type="date"
-                    value={newOffer.fechaEntrega}
-                    onChange={(e) => setNewOffer({...newOffer, fechaEntrega: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Estado
-                  </label>
-                  <select
-                    value={newOffer.estado}
-                    onChange={(e) => setNewOffer({...newOffer, estado: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {(statuses.length ? statuses : ['EN PROCESO','ENTREGADA']).map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Resultado
-                  </label>
-                  <select
-                    value={newOffer.resultado}
-                    onChange={(e) => setNewOffer({...newOffer, resultado: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {(results && results.length ? results : ['VACÍO','OK','KO','NO GO']).map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
                 </div>
               </div>
               
