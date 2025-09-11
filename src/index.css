@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tipografía estilo Apple */
+/* Tipografía global */
 :root {
-  --app-font: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  --app-font: 'Aptos Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
 html, body, #root {

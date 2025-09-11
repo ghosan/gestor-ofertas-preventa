@@ -7,16 +7,13 @@ const colorMap = {
   gray: 'bg-gray-50 text-gray-700',
 };
 
-const KpiCard = ({ title, value, icon = '📊', tone = 'blue' }) => {
+const KpiCard = ({ title, value, tone = 'blue' }) => {
   const toneClasses = colorMap[tone] || colorMap.blue;
   return (
     <div className={`rounded-xl shadow-sm p-4 border border-gray-200 w-full max-w-xs mx-auto ${toneClasses}`}>
-      <div className="flex items-center justify-center gap-3">
-        <span aria-hidden className="text-xl">{icon}</span>
-        <div className="text-center">
-          <h3 className="text-xs font-medium tracking-wide opacity-80">{title}</h3>
-          <p className="text-2xl font-semibold mt-0.5">{value}</p>
-        </div>
+      <div className="text-center">
+        <h3 className="text-xs font-medium tracking-wide opacity-80">{title}</h3>
+        <p className="text-2xl font-semibold mt-0.5">{value}</p>
       </div>
     </div>
   );
