@@ -130,17 +130,8 @@ const OffersTable = ({
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                   </td>
-                  <td className="px-2 py-2 text-center">
-                    {offer.linkUrl ? (
-                      <a href={offer.linkUrl} target="_blank" rel="noreferrer" title={offer.linkUrl} className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
-                        <span aria-hidden>📁</span>
-                      </a>
-                    ) : (
-                      <span>-</span>
-                    )}
-                  </td>
                   <td className="px-2 py-2 text-center text-sm font-medium">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-center gap-1">
                       <span className="truncate">{offer.numeroOferta}</span>
                       {offer.docsCount > 0 && (
                         <span title={`${offer.docsCount} documento(s)`} className="inline-flex items-center text-[9px] px-1 py-0.5 rounded-full bg-violet-100 text-violet-700 border border-violet-200">DOCS</span>
@@ -217,6 +208,15 @@ const OffersTable = ({
                         </span>
                       );
                     })()}
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    {offer.linkUrl ? (
+                      <a href={offer.linkUrl} target="_blank" rel="noreferrer" title={offer.linkUrl} className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+                        <span aria-hidden>📁</span>
+                      </a>
+                    ) : (
+                      <span>-</span>
+                    )}
                   </td>
                 </tr>
               );
